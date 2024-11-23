@@ -1,19 +1,12 @@
-
-
-from src.output_obj import CommandOutput
+import sys
+import subprocess
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import subprocess
-import sys
-
-
-
+from src.outputObj import CommandOutput
 
 class Executor:
-
     @staticmethod
     def execute_command(command: list[str]) -> CommandOutput:
-        
         is_windows: bool = sys.platform.startswith("win")
         strcmd: str = ' '.join(command)
 
@@ -35,7 +28,6 @@ class Executor:
     
     @staticmethod
     def execute_pipeline_concurrent(pipeline: list[list[str]]) -> list[CommandOutput]:
-
         ret: list[CommandOutput] = list()
         
         with ThreadPoolExecutor() as executor:
@@ -45,5 +37,3 @@ class Executor:
                 ret.append(future.result())
                 
         return ret
-    
-

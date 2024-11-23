@@ -1,13 +1,7 @@
-
-
 import json
 import itertools
 
-
-
 class Parser:
-
-
     COMMAND_FLAG: str = 'cmd'
     ARGUMENTS_FLAG: str = 'args'
     STREAM_FLAG: str = 'stream'
@@ -16,7 +10,6 @@ class Parser:
     END_COMMAND_FLAG: str = 'edcmd'
     FILEWRITE_COMMAND: str = 'FILEWRITE'
     PIPELINE_FLAG: str = 'pipeline'
-
 
     @staticmethod
     def load_json(fp) -> any:
@@ -80,6 +73,3 @@ class Parser:
         rd: list[dict] = Parser.load_json_from_raw(raw=raw)
         c: list[list[str]] = Parser.parse_pipeline_to_commands(pipeline=rd[Parser.PIPELINE_FLAG])
         return c
-
-
-
