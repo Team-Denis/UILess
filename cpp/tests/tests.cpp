@@ -40,6 +40,7 @@ int main() {
 
         // Output the results
         std::cout << "Pipeline Output:\n";
+
         for (size_t i = 0; i < results.size(); ++i) {
             const Result& res = results[i];
             std::cout << "Pipeline " << i + 1 << ":\n";
@@ -47,6 +48,15 @@ int main() {
             std::cout << "  Stdout: " << res.stdout_output;
             std::cout << "  Stderr: " << res.stderr_output << "\n\n";
         }
+
+        // Iterate over the CommandPipeline items
+        std::cout << "Iterating over CommandPipeline items:\n";
+        int item_number = 1;
+        for (const auto& item : pipeline) {
+            nlohmann::json item_json = item->as_json();
+            std::cout << "Pipeline Item " << item_number++ << " JSON:\n" << item_json.dump(4) << "\n\n";
+        }
+
     } catch (const std::exception& e) {
         std::cerr << "Exception in pipeline execution: " << e.what() << std::endl;
         return 1;

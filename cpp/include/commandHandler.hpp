@@ -97,6 +97,19 @@ public:
     void set_parallel(bool is_parallel) { parallel = is_parallel; }
     [[nodiscard]] bool is_parallel() const { return parallel; }
 
+    // Iterator functions for range-based for loops
+    // Non-const versions
+    std::vector<std::shared_ptr<PipelineItem>>::iterator begin()    { return pipeline_items.begin(); }
+    std::vector<std::shared_ptr<PipelineItem>>::iterator end()      { return pipeline_items.end(); }
+
+    // Const versions
+    [[nodiscard]] std::vector<std::shared_ptr<PipelineItem>>::const_iterator begin()    const   { return pipeline_items.begin(); }
+    [[nodiscard]] std::vector<std::shared_ptr<PipelineItem>>::const_iterator end()      const   { return pipeline_items.end(); }
+
+    // cbegin() and cend()
+    [[nodiscard]] std::vector<std::shared_ptr<PipelineItem>>::const_iterator cbegin()   const   { return pipeline_items.cbegin(); }
+    [[nodiscard]] std::vector<std::shared_ptr<PipelineItem>>::const_iterator cend()     const   { return pipeline_items.cend(); }
+
 private:
     std::vector<std::shared_ptr<PipelineItem>> pipeline_items;
     bool parallel;
