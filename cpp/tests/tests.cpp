@@ -26,7 +26,7 @@ int main() {
         pipeline_item2->    set_start_command(start_cmd2);
         pipeline_item2->    add_middle_command(middle_cmd2);
         // pipeline_item2->    set_end_command(end_cmd2);
-        
+
         // Create the CommandPipeline and add both PipelineItems
         CommandPipeline pipeline;
         pipeline.add_pipeline_item(pipeline_item1);
