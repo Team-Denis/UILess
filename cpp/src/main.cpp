@@ -1,6 +1,8 @@
 #include <colors.hpp>
 #include <raylib.h>
 #include <raymath.h>
+#include <pipelineRunner.hpp>
+#include <commandHandler.hpp>
 #include <unordered_map>
 #include <vector>
 
@@ -42,7 +44,11 @@ namespace ImGui {
                        WHITE);
     }
 
-    bool draw_run_button(Vector2 center, float radius) {
+    bool push_run_button(float radius) {
+        DrawCircleV(state.at, 10, RED);
+
+        Vector2 center {state.at.x + radius, state.at.y + radius};
+
         auto mouse = GetMousePosition();
         bool does_collide = CheckCollisionPointCircle(mouse, center, radius);
 
@@ -53,19 +59,19 @@ namespace ImGui {
 
     void push_frame() {
         state.current_frame = {};
-        state.at = Vector2 {0, 0};
+        state.at = Vector2{0, 0};
         state.current_id = 0;
     }
 
     void begin_panel(float width) {
-        state.current_frame = Rectangle {
-            state.at.x + padding,
-            state.at.y + padding,
-            width - 2 * padding,
-            HEIGHT - 2 * padding
+        state.current_frame = Rectangle{
+                state.at.x + padding,
+                state.at.y + padding,
+                width - 2 * padding,
+                HEIGHT - 2 * padding
         };
 
-        state.at = Vector2 {state.current_frame.x + padding, state.current_frame.y + padding};
+        state.at = Vector2{state.current_frame.x + padding, state.current_frame.y + padding};
 
         DrawRectangleRounded(state.current_frame, 0.04f, 20, Colors::BG2);
     }
@@ -101,11 +107,11 @@ namespace ImGui {
         if (state.dragged != state.current_id) {
             draw_button(emoji, frame);
         } else {
-            state.dragged_frame = Rectangle {
-                mouse.x + state.anchor.x,
-                mouse.y + state.anchor.y,
-                frame.width,
-                frame.height,
+            state.dragged_frame = Rectangle{
+                    mouse.x + state.anchor.x,
+                    mouse.y + state.anchor.y,
+                    frame.width,
+                    frame.height,
             };
         }
 
@@ -123,11 +129,10 @@ namespace ImGui {
         }
     }
 
-    void begin_cmd_bar(float margin_right) {
+    void begin_cmd_bar(float margin_right, CommandPipeline &pipeline) {
         state.at.y = HEIGHT - 100 - 2 * padding;
         float width = state.current_frame.width - 4 * padding - margin_right;
         Rectangle frame{state.at.x, state.at.y, width, 100};
-        DrawRectangleRounded(frame, 0.15f, 20, Colors::BG3);
 
         bool collision = false;
 
@@ -135,15 +140,54 @@ namespace ImGui {
             collision = CheckCollisionRecs(frame, state.dragged_frame);
         }
 
-        // Handle drop
+        DrawRectangleRounded(frame, 0.15f, 20, (collision && state.dragged != -1) ? Colors::BG4 : Colors::BG3);
+
+//        for (const auto& item : pipeline) {
+//
+//        }
+
+        std::shared_ptr<PipelineItem> pipeline_item = nullptr;
+
+        // Handle normal drop
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON) && state.dragged != -1) {
             state.dragged = -1;
             if (collision) {
                 TraceLog(LOG_INFO, "Dropped");
+
+                auto cmd = std::make_shared<StartCommand>("ls", StringList{}, 0);
+                pipeline_item = std::make_shared<PipelineItem>();
+
+                pipeline_item->set_start_command(cmd);
+//                pipeline.set_parallel(false);
+
+                pipeline.add_pipeline_item(pipeline_item);
             }
         }
 
-        state.at.x = width + padding;
+        auto item = pipeline.first();
+
+        if (item != nullptr) {
+            auto start = item->get_start_command();
+
+            if (start != nullptr) {
+                TraceLog(LOG_INFO, "Hello");
+            }
+        }
+
+        // Handle file drop
+        if (IsFileDropped()) {
+            FilePathList droppedFiles = LoadDroppedFiles();
+
+            if (CheckCollisionPointRec(GetMousePosition(), frame)) {
+                std::string path(droppedFiles.paths[0]);
+                TraceLog(LOG_INFO, "%s", path.c_str());
+            }
+
+            UnloadDroppedFiles(droppedFiles);
+        }
+
+
+        state.at.x += width + padding;
     }
 };
 
@@ -164,8 +208,9 @@ int main(int argc, char **argv) {
 
     Shader shader = LoadShader(nullptr, TextFormat("shaders/blur.glsl", 330));
 
+    CommandPipeline pipeline;
 
-    auto file = load_texture("assets/file.png");
+    auto file = load_texture("assets/joy.png");
 
     std::vector<int> cmds;
 
@@ -194,7 +239,9 @@ int main(int argc, char **argv) {
 
         ImGui::begin_panel(WIDTH - side_panel_width);
 
-        ImGui::begin_cmd_bar(60);
+        ImGui::begin_cmd_bar(60, pipeline);
+
+        ImGui::push_run_button(30);
 
         ImGui::end_panel();
 
