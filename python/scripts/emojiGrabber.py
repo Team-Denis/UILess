@@ -70,6 +70,8 @@ class EmojiGrabber:
     def convert_every_svg_to_png(dst: str) -> None:
         
         for f in os.listdir(dst):
+            if not f.endswith(".svg"):
+                continue
 
             cur: str = os.path.join(dst, f)
             png_cur_path: str = cur.replace('.svg', '.png')

@@ -44,15 +44,23 @@ namespace ImGui {
                        WHITE);
     }
 
-    bool push_run_button(float radius) {
-        DrawCircleV(state.at, 10, RED);
-
-        Vector2 center {state.at.x + radius, state.at.y + radius};
+    bool push_round_icon_button(Texture icon, float radius) {
+        Vector2 center{state.at.x + radius, state.at.y + radius};
 
         auto mouse = GetMousePosition();
         bool does_collide = CheckCollisionPointCircle(mouse, center, radius);
 
-        DrawCircleV(center, radius, Colors::GREEN1);
+        Rectangle icon_frame{center.x - 25 + 2, center.y - 25, 50, 50};
+
+        DrawCircleV(center, radius, Colors::BG4);
+
+        DrawTexturePro(icon,
+                       Rectangle{0, 0, static_cast<float>(icon.width),
+                                 static_cast<float>(icon.height)},
+                       icon_frame,
+                       Vector2{0, 0},
+                       0,
+                       Colors::GREEN1);
 
         return IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && does_collide;
     }
@@ -122,8 +130,6 @@ namespace ImGui {
     void end_frame() {
         // Draw things that are supposed to be on top
 
-        auto mouse = GetMousePosition();
-
         if (state.dragged != -1) {
             draw_button(state.dragged_emoji, state.dragged_frame);
         }
@@ -131,7 +137,7 @@ namespace ImGui {
 
     void begin_cmd_bar(float margin_right, CommandPipeline &pipeline) {
         state.at.y = HEIGHT - 100 - 2 * padding;
-        float width = state.current_frame.width - 4 * padding - margin_right;
+        float width = state.current_frame.width - 3 * padding - margin_right;
         Rectangle frame{state.at.x, state.at.y, width, 100};
 
         bool collision = false;
@@ -141,10 +147,6 @@ namespace ImGui {
         }
 
         DrawRectangleRounded(frame, 0.15f, 20, (collision && state.dragged != -1) ? Colors::BG4 : Colors::BG3);
-
-//        for (const auto& item : pipeline) {
-//
-//        }
 
         std::shared_ptr<PipelineItem> pipeline_item = nullptr;
 
@@ -170,7 +172,7 @@ namespace ImGui {
             auto start = item->get_start_command();
 
             if (start != nullptr) {
-                TraceLog(LOG_INFO, "Hello");
+//                TraceLog(LOG_INFO, "Hello");
             }
         }
 
@@ -211,6 +213,7 @@ int main(int argc, char **argv) {
     CommandPipeline pipeline;
 
     auto file = load_texture("assets/joy.png");
+    auto run_icon = load_texture("assets/run.png");
 
     std::vector<int> cmds;
 
@@ -239,9 +242,9 @@ int main(int argc, char **argv) {
 
         ImGui::begin_panel(WIDTH - side_panel_width);
 
-        ImGui::begin_cmd_bar(60, pipeline);
+        ImGui::begin_cmd_bar(100, pipeline);
 
-        ImGui::push_run_button(30);
+        ImGui::push_round_icon_button(run_icon, 50);
 
         ImGui::end_panel();
 
