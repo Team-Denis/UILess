@@ -26,7 +26,7 @@ int main() {
         pipeline_item2->    set_start_command(start_cmd2);
         pipeline_item2->    add_middle_command(middle_cmd2);
         // pipeline_item2->    set_end_command(end_cmd2);
-
+        
         // Create the CommandPipeline and add both PipelineItems
         CommandPipeline pipeline;
         pipeline.add_pipeline_item(pipeline_item1);
@@ -36,11 +36,17 @@ int main() {
         pipeline.set_parallel(true); // Set to 'false' for sequential execution
 
         // Execute the pipeline with parallel flag set to true
-        std::string output_json = runPipeline(pipeline);
+        std::vector<Result> results = runPipeline(pipeline);
 
-        // Output the result
-        std::cout << "Pipeline Output:\n" << output_json << std::endl;
-
+        // Output the results
+        std::cout << "Pipeline Output:\n";
+        for (size_t i = 0; i < results.size(); ++i) {
+            const Result& res = results[i];
+            std::cout << "Pipeline " << i + 1 << ":\n";
+            std::cout << "  Exit Code: " << res.exit_code << "\n";
+            std::cout << "  Stdout: " << res.stdout_output;
+            std::cout << "  Stderr: " << res.stderr_output << "\n\n";
+        }
     } catch (const std::exception& e) {
         std::cerr << "Exception in pipeline execution: " << e.what() << std::endl;
         return 1;
