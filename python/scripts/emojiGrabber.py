@@ -4,7 +4,7 @@ import json
 import os
 import requests
 import subprocess
-
+import argparse
 
 
 
@@ -76,6 +76,7 @@ class EmojiGrabber:
 
             command: list = [
                 "inkscape",
+                "-w", "1024", "-h", "1024",
                 cur,
                 "--export-type=png",
                 "--export-filename", png_cur_path]
@@ -96,11 +97,18 @@ class EmojiGrabber:
         EmojiGrabber.convert_every_svg_to_png(dst=dfp)
 
 
+def main() -> None:
+
+    parser: argparse.ArgumentParser = argparse.ArgumentParser(description="Download and convert emojis from a JSON map.")
+    parser.add_argument("query", nargs='+', help="List of emoji names to search for.")
+    parser.add_argument("--destpath", default='./assets', help="Destination path for saving SVG and PNG files.")
+    args: argparse.Namespace = parser.parse_args()
+    dscd_fp: str = './assets/discord_emoji.json'
+
+    EmojiGrabber.query_emoji(fp=dscd_fp, query=args.query, dfp=args.destpath)
+
 
 # if __name__ == '__maison__':
-
 if __name__ == '__main__':
-
-    dscd_fp: str = f'./python/scripts/discord_emoji.json'
-    EmojiGrabber.query_emoji(fp=dscd_fp, query=['joy', 'worm'], dfp='./python/scripts/dwld')
+    main()
   
