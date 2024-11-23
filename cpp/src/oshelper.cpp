@@ -4,8 +4,8 @@
 #include <string>
 #include <stdexcept>
 
-std::string open_file_dialog() {
-    std::string result;
+void open_file_dialog(std::string &result) {
+    std::string out;
     char buffer[128];
 
     FILE* pipe = popen("zenity --file-selection", "r");
@@ -14,7 +14,7 @@ std::string open_file_dialog() {
     }
 
     while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
-        result += buffer;
+        out += buffer;
     }
 
     int returnCode = pclose(pipe);
@@ -22,5 +22,5 @@ std::string open_file_dialog() {
         throw std::runtime_error("Command failed with return code: " + std::to_string(returnCode));
     }
 
-    return result;
+    result = out;
 }
