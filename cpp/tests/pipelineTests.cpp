@@ -1,53 +1,47 @@
 #include <iostream>
 #include <vector>
+#include <string>
 
 #include "commandHandler.hpp"
 #include "pipelineRunner.hpp"
+#include "result.hpp"
+
 
 int main() {
     try {
-        // First PipelineItem: ls | grep .txt | FILEWRITE output1.txt
-        StartCommand    start_cmd1  ("ls", StringList{}, 0);
-        MiddleCommand   middle_cmd1 ("grep", StringList{".txt"}, 0);
-        // EndCommand      end_cmd1    ("FILEWRITE", StringList{"output1.txt"}, 0);
+        CommandHandler handler;
+        std::string input;
 
-        PipelineItem    pipeline_item1;
-        pipeline_item1.setStartCommand    (start_cmd1);
-        pipeline_item1.addMiddleCommand   (middle_cmd1);
-        // pipeline_item1.set_end_command      (end_cmd1);
+        std::cout << "Enter your command pipeline (use '-p' for parallel execution):\n> ";
+        std::getline(std::cin, input);
 
-        // Second PipelineItem: ps | grep python | FILEWRITE output2.txt
-        StartCommand    start_cmd2  ("ps", StringList{}, 0);
-        MiddleCommand   middle_cmd2 ("grep", StringList{"python"}, 0);
-        // EndCommand      end_cmd2    ("FILEWRITE", StringList{"output2.txt"}, 0);
+        std::string errorMessage;
 
-        PipelineItem    pipeline_item2;
-        pipeline_item2.setStartCommand    (start_cmd2);
-        pipeline_item2.addMiddleCommand   (middle_cmd2);
-        //pipeline_item2.set_end_command      (end_cmd2);
+        if (!handler.parseInput(input, errorMessage)) {
+            std::cerr << "Error: " << errorMessage << std::endl;
+            return 1;
+        }
 
-        CommandPipeline pipeline;
-        pipeline.addPipelineItem(pipeline_item1);
-        pipeline.addPipelineItem(pipeline_item2);
-
-        pipeline.setParallel(true); // 'false' -> sequential execution
-        // Execute the pipeline
+        CommandPipeline pipeline = handler.getPipeline();
         std::vector<Result> results = runPipeline(pipeline);
 
-        std::cout << "Pipeline Output:\n";
+        // Display results
+        std::cout << "\nPipeline Execution Results:\n";
+
         for (size_t i = 0; i < results.size(); ++i) {
             const Result& res = results[i];
-            std::cout << "Pipeline " << i + 1 << ":\n";
+            std::cout << "Command " << i + 1 << ":\n";
             std::cout << "  Exit Code: " << res.exit_code << "\n";
-            std::cout << "  Stdout: " << res.stdout_output;
+            std::cout << "  Stdout: " << res.stdout_output << "\n";
             std::cout << "  Stderr: " << res.stderr_output << "\n\n";
         }
 
-        // Iterate over the pipeline items
-        std::cout << "Iterating over pipeline items:\n";
+        // Iterate over the pipeline items and display their JSON representation
+        std::cout << "Pipeline JSON Structure:\n";
         int item_number = 1;
+
         for (const auto& item : pipeline) {
-            nlohmann::json item_json = item.as_json();
+            nlohmann::json item_json = item.asJSON();
             std::cout << "Pipeline Item " << item_number++ << " JSON:\n" << item_json.dump(4) << "\n\n";
         }
 

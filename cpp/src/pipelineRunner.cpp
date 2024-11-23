@@ -12,7 +12,7 @@
 
 // Helper Function: Serialize Pipeline to JSON
 nlohmann::json serializePipelineToJson(const CommandPipeline& pipeline) {
-    return pipeline.as_json();
+    return pipeline.asJSON();
 }
 
 // Helper Function: Write JSON to a Temporary File
@@ -37,7 +37,7 @@ std::string writeJsonToTempFile(const nlohmann::json& json_output) {
 // Helper Function: Invoke Python Script
 std::string invokePythonScript(const std::string& json_file_path, bool parallel) {
     // Define the full path to the Python script
-    std::string python_script_path = "../../python/main.py";
+    std::string python_script_path = "python/main.py";
 
     // Construct the command to invoke the Python script with the full path
     std::string python_command = "python \"" + python_script_path + "\" -f " + json_file_path;
@@ -67,7 +67,7 @@ std::string invokePythonScript(const std::string& json_file_path, bool parallel)
     return result;
 }
 
-/// Helper Function: Process Python Output
+// Helper Function: Process Python Output
 std::vector<Result> processPythonOutput(const std::string& python_output) {
     std::vector<Result> results;
 

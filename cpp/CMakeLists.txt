@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 23)
 
 # Compiler warnings and optimization flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wextra -O2 -g")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow -Wformat=2 -Wfloat-equal -Wconversion -Wlogical-op \
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat=2 -Wfloat-equal -Wconversion -Wlogical-op \
                      -Wshift-overflow=2 -Wduplicated-cond -Wcast-qual -Wcast-align \
                      -Wnull-dereference -Wold-style-cast -Wuseless-cast \
                      -Wdouble-promotion -Wzero-as-null-pointer-constant -Wstrict-null-sentinel \
@@ -40,7 +40,7 @@ if(BUILD_TESTS)
     include_directories(include)
 
     # Add test executable
-    add_executable(pipeline_tests tests/pipelineTests.cpp src/commandHandler.cpp src/pipelineRunner.cpp src/result.cpp)
+    add_executable(pipeline_tests tests/pipelineTests.cpp src/commandHandler.cpp src/pipelineRunner.cpp src/result.cpp src/commandSpec.cpp src/tokenizer.cpp)
     add_executable(thread_tests tests/threadingTests.cpp src/commandHandler.cpp src/pipelineRunner.cpp src/result.cpp src/cmdThread.cpp)
 
     # Link libraries to test executable

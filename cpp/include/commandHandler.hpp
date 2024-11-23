@@ -4,6 +4,9 @@
 #include <vector>
 #include <optional>
 
+#include "commandSpec.hpp"
+#include "tokenizer.hpp"
+
 #include <nlohmann/json.hpp>
 
 // Typedefs
@@ -81,7 +84,7 @@ public:
     [[nodiscard]] const std::vector<MiddleCommand>&     getMiddleCommands()   const;
     [[nodiscard]] const std::optional<EndCommand>&      getEndCommand()       const;
 
-    [[nodiscard]] nlohmann::json as_json() const;
+    [[nodiscard]] nlohmann::json asJSON() const;
 
 private:
     std::optional<StartCommand>     start_command;
@@ -96,7 +99,7 @@ public:
 
     void addPipelineItem(const PipelineItem& item);
 
-    [[nodiscard]] nlohmann::json as_json() const;
+    [[nodiscard]] nlohmann::json asJSON() const;
 
     // Parallel flag
     void setParallel(bool is_parallel)     { parallel = is_parallel; }
@@ -118,4 +121,18 @@ public:
 private:
     std::vector<PipelineItem> pipeline_items;
     bool parallel;
+};
+
+// CommandHandler Class
+class CommandHandler {
+public:
+    CommandHandler();
+
+    // Parses the input string and builds the pipeline if valid
+    bool parseInput(const std::string& input, std::string& errorMessage);
+
+    [[nodiscard]] const CommandPipeline& getPipeline() const;
+
+private:
+    CommandPipeline pipeline;
 };
