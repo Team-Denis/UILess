@@ -21,13 +21,13 @@ class Command {
 public:
     virtual ~Command() = default;
 
-    [[nodiscard]] virtual CommandType get_type()    const = 0;
-    [[nodiscard]] virtual nlohmann::json as_json()  const = 0;
+    [[nodiscard]] virtual CommandType getType()    const = 0;
+    [[nodiscard]] virtual nlohmann::json asJSON()  const = 0;
+    [[nodiscard]] std::string getCmd() const { return cmd; }
 
 protected:
-    [[nodiscard]] virtual nlohmann::json args_as_json() const = 0;
+    [[nodiscard]] virtual nlohmann::json argsAsJSON() const = 0;
 
-protected:
     std::string cmd;
     StringList args;
     int stream = 0;
@@ -38,11 +38,11 @@ class StartCommand : public Command {
 public:
     StartCommand(const std::string& cmd, const StringList& args, int stream = 0);
 
-    [[nodiscard]] CommandType get_type()    const override;
-    [[nodiscard]] nlohmann::json as_json()  const override;
+    [[nodiscard]] CommandType getType()    const override;
+    [[nodiscard]] nlohmann::json asJSON()  const override;
 
 protected:
-    [[nodiscard]] nlohmann::json args_as_json() const override;
+    [[nodiscard]] nlohmann::json argsAsJSON() const override;
 };
 
 // MiddleCommand Class
@@ -50,11 +50,11 @@ class MiddleCommand : public Command {
 public:
     MiddleCommand(const std::string& cmd, const StringList& args, int stream = 0);
 
-    [[nodiscard]] CommandType get_type()    const override;
-    [[nodiscard]] nlohmann::json as_json()  const override;
+    [[nodiscard]] CommandType getType()    const override;
+    [[nodiscard]] nlohmann::json asJSON()  const override;
 
 protected:
-    [[nodiscard]] nlohmann::json args_as_json() const override;
+    [[nodiscard]] nlohmann::json argsAsJSON() const override;
 };
 
 // EndCommand Class
@@ -62,24 +62,24 @@ class EndCommand : public Command {
 public:
     EndCommand(const std::string& cmd, const StringList& args, int stream = 0);
 
-    [[nodiscard]] CommandType get_type()    const override;
-    [[nodiscard]] nlohmann::json as_json()  const override;
+    [[nodiscard]] CommandType getType()    const override;
+    [[nodiscard]] nlohmann::json asJSON()  const override;
 
 protected:
-    [[nodiscard]] nlohmann::json args_as_json() const override;
+    [[nodiscard]] nlohmann::json argsAsJSON() const override;
 };
 
 // PipelineItem Class
 class PipelineItem {
 public:
-    void set_start_command  (const StartCommand& cmd);
-    void add_middle_command (const MiddleCommand& cmd);
-    void set_end_command    (const EndCommand& cmd);
+    void setStartCommand  (const StartCommand& cmd);
+    void addMiddleCommand (const MiddleCommand& cmd);
+    void setEndCommand    (const EndCommand& cmd);
 
     // Getter Methods
-    [[nodiscard]] const std::optional<StartCommand>&    get_start_command()     const;
-    [[nodiscard]] const std::vector<MiddleCommand>&     get_middle_commands()   const;
-    [[nodiscard]] const std::optional<EndCommand>&      get_end_command()       const;
+    [[nodiscard]] const std::optional<StartCommand>&    getStartCommand()     const;
+    [[nodiscard]] const std::vector<MiddleCommand>&     getMiddleCommands()   const;
+    [[nodiscard]] const std::optional<EndCommand>&      getEndCommand()       const;
 
     [[nodiscard]] nlohmann::json as_json() const;
 
@@ -94,13 +94,13 @@ class CommandPipeline {
 public:
     CommandPipeline() : parallel(false) {}
 
-    void add_pipeline_item(const PipelineItem& item);
+    void addPipelineItem(const PipelineItem& item);
 
     [[nodiscard]] nlohmann::json as_json() const;
 
     // Parallel flag
-    void set_parallel(bool is_parallel)     { parallel = is_parallel; }
-    [[nodiscard]] bool is_parallel() const  { return parallel; }
+    void setParallel(bool is_parallel)     { parallel = is_parallel; }
+    [[nodiscard]] bool isParallel() const  { return parallel; }
 
     // Iterator functions for range-based for loops
     // Non-const versions

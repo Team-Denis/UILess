@@ -122,7 +122,7 @@ std::vector<Result> runPipeline(const CommandPipeline& pipeline) {
     std::string temp_json_file = writeJsonToTempFile(json_output);
 
     // Get the bool more beautifully :whocares:
-    bool parallel = pipeline.is_parallel();
+    bool parallel = pipeline.isParallel();
 
     // Invoke the Python script and capture the output
     std::string python_output = invokePythonScript(temp_json_file, parallel);

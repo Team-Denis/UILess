@@ -23,11 +23,11 @@ int main() {
         for (int i = 0; i < num_echo_tasks; ++i) {
             StartCommand start_cmd("echo", StringList{"Hello World"}, 0);
             PipelineItem pipeline_item;
-            pipeline_item.set_start_command(start_cmd);
+            pipeline_item.setStartCommand(start_cmd);
 
             CommandPipeline pipeline;
-            pipeline.add_pipeline_item(pipeline_item);
-            pipeline.set_parallel(false);
+            pipeline.addPipelineItem(pipeline_item);
+            pipeline.setParallel(false);
 
             // Push the pipeline as a task
             processor.pushTask(pipeline);
@@ -39,11 +39,11 @@ int main() {
         for (int i = 0; i < num_ls_tasks; ++i) {
             StartCommand start_cmd("ls", StringList{}, 0);
             PipelineItem pipeline_item;
-            pipeline_item.set_start_command(start_cmd);
+            pipeline_item.setStartCommand(start_cmd);
 
             CommandPipeline pipeline;
-            pipeline.add_pipeline_item(pipeline_item);
-            pipeline.set_parallel(false);
+            pipeline.addPipelineItem(pipeline_item);
+            pipeline.setParallel(false);
 
             processor.pushTask(pipeline);
 

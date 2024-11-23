@@ -12,8 +12,8 @@ int main() {
         // EndCommand      end_cmd1    ("FILEWRITE", StringList{"output1.txt"}, 0);
 
         PipelineItem    pipeline_item1;
-        pipeline_item1.set_start_command    (start_cmd1);
-        pipeline_item1.add_middle_command   (middle_cmd1);
+        pipeline_item1.setStartCommand    (start_cmd1);
+        pipeline_item1.addMiddleCommand   (middle_cmd1);
         // pipeline_item1.set_end_command      (end_cmd1);
 
         // Second PipelineItem: ps | grep python | FILEWRITE output2.txt
@@ -22,15 +22,15 @@ int main() {
         // EndCommand      end_cmd2    ("FILEWRITE", StringList{"output2.txt"}, 0);
 
         PipelineItem    pipeline_item2;
-        pipeline_item2.set_start_command    (start_cmd2);
-        pipeline_item2.add_middle_command   (middle_cmd2);
+        pipeline_item2.setStartCommand    (start_cmd2);
+        pipeline_item2.addMiddleCommand   (middle_cmd2);
         //pipeline_item2.set_end_command      (end_cmd2);
 
         CommandPipeline pipeline;
-        pipeline.add_pipeline_item(pipeline_item1);
-        pipeline.add_pipeline_item(pipeline_item2);
+        pipeline.addPipelineItem(pipeline_item1);
+        pipeline.addPipelineItem(pipeline_item2);
 
-        pipeline.set_parallel(true); // 'false' -> sequential execution
+        pipeline.setParallel(true); // 'false' -> sequential execution
         // Execute the pipeline
         std::vector<Result> results = runPipeline(pipeline);
 
