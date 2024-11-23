@@ -70,46 +70,46 @@ nlohmann::json EndCommand::args_as_json() const {
 }
 
 // PipelineItem Implementation
-void PipelineItem::set_start_command(std::shared_ptr<StartCommand> cmd) {
-    start_command = std::move(cmd);
+void PipelineItem::set_start_command(const StartCommand& cmd) {
+    start_command = cmd;
 }
 
-void PipelineItem::add_middle_command(std::shared_ptr<MiddleCommand> cmd) {
-    middle_commands.push_back(std::move(cmd));
+void PipelineItem::add_middle_command(const MiddleCommand& cmd) {
+    middle_commands.push_back(cmd);
 }
 
-void PipelineItem::set_end_command(std::shared_ptr<EndCommand> cmd) {
-    end_command = std::move(cmd);
+void PipelineItem::set_end_command(const EndCommand& cmd) {
+    end_command = cmd;
 }
 
-std::shared_ptr<StartCommand> PipelineItem::get_start_command() const {
+const std::optional<StartCommand>& PipelineItem::get_start_command() const {
     return start_command;
 }
 
-const std::vector<std::shared_ptr<MiddleCommand>>& PipelineItem::get_middle_commands() const {
+const std::vector<MiddleCommand>& PipelineItem::get_middle_commands() const {
     return middle_commands;
 }
 
-std::shared_ptr<EndCommand> PipelineItem::get_end_command() const {
+const std::optional<EndCommand>& PipelineItem::get_end_command() const {
     return end_command;
 }
 
 nlohmann::json PipelineItem::as_json() const {
     nlohmann::json json_item;
 
-    if (start_command) {
+    if (start_command.has_value()) {
         json_item.merge_patch(start_command->as_json());
     }
 
     if (!middle_commands.empty()) {
         nlohmann::json mdcmds_json = nlohmann::json::array();
         for (const auto& cmd : middle_commands) {
-            mdcmds_json.push_back(cmd->as_json());
+            mdcmds_json.push_back(cmd.as_json());
         }
         json_item["mdcmd"] = mdcmds_json;
     }
 
-    if (end_command) {
+    if (end_command.has_value()) {
         json_item.merge_patch(end_command->as_json());
     }
 
@@ -117,15 +117,15 @@ nlohmann::json PipelineItem::as_json() const {
 }
 
 // CommandPipeline Implementation
-void CommandPipeline::add_pipeline_item(std::shared_ptr<PipelineItem> item) {
-    pipeline_items.push_back(std::move(item));
+void CommandPipeline::add_pipeline_item(const PipelineItem& item) {
+    pipeline_items.push_back(item);
 }
 
 nlohmann::json CommandPipeline::as_json() const {
     nlohmann::json pipeline_json = nlohmann::json::array();
 
     for (const auto& item : pipeline_items) {
-        pipeline_json.push_back(item->as_json());
+        pipeline_json.push_back(item.as_json());
     }
 
     return { {"pipeline", pipeline_json} };
