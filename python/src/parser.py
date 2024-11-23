@@ -42,7 +42,7 @@ class Parser:
             if stream == 0 or not stream:
                 res += ['>'] + args
             elif stream == 2:
-                ret += ['2>'] + args
+                res += ['2>'] + args
 
         return res
 

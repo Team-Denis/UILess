@@ -8,6 +8,7 @@ from src.pipeline_executor import Executor
 
 if __name__ == '__main__':
     
-    c = Parser.run_parsing(fp=r'C:\Users\Antoine\Desktop\Odoo2024\python\test\tstcm.json')
-    o = Executor.execute_pipeline(pipeline=c)
-    print(o)
+    pipeline: list[list[str]] = Parser.run_parsing(fp=r'python\test\tstcm.json')
+    out: list[CommandOutput] = Executor.execute_pipeline_concurrent(pipeline=pipeline)
+    for r in out: print(r)
+

@@ -4,12 +4,20 @@
 
         {
             "stcmd":
-                {"cmd": "cat", "args": ["file1.txt"], "stream": 0},
+                {"cmd": "ipconfig", "args": [], "stream": 0},
+            "mdcmd": [
+                {"cmd": "sort", "args": [], "stream": 0}
+            ]
+        },
+
+        {
+            "stcmd":
+                {"cmd": "ls", "args": [], "stream": 0},
             "mdcmd": [
                 {"cmd": "sort", "args": [], "stream": 0}
             ],
             "edcmd":
-                {"cmd": "FILEWRITE", "args": ["file2.txt"], "stream": 0}
+                {"cmd": "FILEWRITE", "args": ["out.txt"], "stream": 0}
         }
 
     ]
