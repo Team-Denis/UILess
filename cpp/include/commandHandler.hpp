@@ -72,12 +72,18 @@ protected:
     [[nodiscard]] nlohmann::json argsAsJSON() const override;
 };
 
+enum class PipeLineItemState {
+    Start,
+    Middle,
+    End,
+};
+
 // PipelineItem Class
 class PipelineItem {
 public:
-    void setStartCommand  (const StartCommand& cmd);
-    void addMiddleCommand (const MiddleCommand& cmd);
-    void setEndCommand    (const EndCommand& cmd);
+    int setStartCommand  (const StartCommand& cmd);
+    int addMiddleCommand (const MiddleCommand& cmd);
+    int setEndCommand    (const EndCommand& cmd);
 
     // Getter Methods
     [[nodiscard]] const std::optional<StartCommand>&    getStartCommand()     const;
@@ -90,6 +96,7 @@ private:
     std::optional<StartCommand>     start_command;
     std::vector<MiddleCommand>      middle_commands;
     std::optional<EndCommand>       end_command;
+    PipeLineItemState m_state = PipeLineItemState::Start;
 };
 
 // CommandPipeline Class

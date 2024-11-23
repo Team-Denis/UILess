@@ -214,7 +214,7 @@ namespace ImGui {
 
         for (const auto &item: pipeline) {
             std::optional<StartCommand> start_cmd = item.getStartCommand();
-            std::string cmd_str = start_cmd ? start_cmd->getCmd() : "N/A";
+            std::string cmd_str = start_cmd ? start_cmd->getCmd() : "N/A"; // hmm
 
             push_button(cmd_str);
         }

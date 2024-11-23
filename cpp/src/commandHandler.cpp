@@ -75,16 +75,33 @@ nlohmann::json EndCommand::argsAsJSON() const {
 }
 
 // PipelineItem Implementation
-void PipelineItem::setStartCommand(const StartCommand& cmd) {
+int PipelineItem::setStartCommand(const StartCommand& cmd) {
+    if (m_state != PipeLineItemState::Start) {
+        return -1;
+    }
+
     start_command = cmd;
+    m_state = PipeLineItemState::Middle;
+    return 0;
 }
 
-void PipelineItem::addMiddleCommand(const MiddleCommand& cmd) {
+int PipelineItem::addMiddleCommand(const MiddleCommand& cmd) {
+    if (m_state != PipeLineItemState::Middle) {
+        return -1;
+    }
+
     middle_commands.push_back(cmd);
+    return 0;
 }
 
-void PipelineItem::setEndCommand(const EndCommand& cmd) {
+int PipelineItem::setEndCommand(const EndCommand& cmd) {
+    if (m_state != PipeLineItemState::Middle) {
+        return -1;
+    }
+
+    m_state = PipeLineItemState::End;
     end_command = cmd;
+    return 0;
 }
 
 const std::optional<StartCommand>& PipelineItem::getStartCommand() const {
