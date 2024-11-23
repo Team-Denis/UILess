@@ -27,6 +27,7 @@ public:
     [[nodiscard]] virtual CommandType getType()    const = 0;
     [[nodiscard]] virtual nlohmann::json asJSON()  const = 0;
     [[nodiscard]] std::string getCmd() const { return cmd; }
+    [[nodiscard]] StringList getArgs() const { return args; }
 
 protected:
     [[nodiscard]] virtual nlohmann::json argsAsJSON() const = 0;
@@ -37,7 +38,7 @@ protected:
 };
 
 // StartCommand Class
-class StartCommand : public Command {
+class StartCommand final : public Command {
 public:
     StartCommand(const std::string& cmd, const StringList& args, int stream = 0);
 
@@ -49,7 +50,7 @@ protected:
 };
 
 // MiddleCommand Class
-class MiddleCommand : public Command {
+class MiddleCommand final : public Command {
 public:
     MiddleCommand(const std::string& cmd, const StringList& args, int stream = 0);
 
@@ -61,7 +62,7 @@ protected:
 };
 
 // EndCommand Class
-class EndCommand : public Command {
+class EndCommand final : public Command {
 public:
     EndCommand(const std::string& cmd, const StringList& args, int stream = 0);
 
@@ -102,7 +103,7 @@ public:
     [[nodiscard]] nlohmann::json asJSON() const;
 
     // Parallel flag
-    void setParallel(bool is_parallel)     { parallel = is_parallel; }
+    void setParallel(const bool is_parallel)     { parallel = is_parallel; }
     [[nodiscard]] bool isParallel() const  { return parallel; }
 
     // Iterator functions for range-based for loops

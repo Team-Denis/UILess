@@ -6,7 +6,6 @@
 #include "pipelineRunner.hpp"
 #include "result.hpp"
 
-
 int main() {
     try {
         CommandHandler handler;
@@ -15,25 +14,23 @@ int main() {
         std::cout << "Enter your command pipeline (use '-p' for parallel execution):\n> ";
         std::getline(std::cin, input);
 
-        std::string errorMessage;
-
-        if (!handler.parseInput(input, errorMessage)) {
+        if (std::string errorMessage; !handler.parseInput(input, errorMessage)) {
             std::cerr << "Error: " << errorMessage << std::endl;
             return 1;
         }
 
         CommandPipeline pipeline = handler.getPipeline();
-        std::vector<Result> results = runPipeline(pipeline);
+        const std::vector<Result> results = runPipeline(pipeline);
 
         // Display results
         std::cout << "\nPipeline Execution Results:\n";
 
         for (size_t i = 0; i < results.size(); ++i) {
-            const Result& res = results[i];
+            const auto&[exit_code, stdout_output, stderr_output] = results[i];
             std::cout << "Command " << i + 1 << ":\n";
-            std::cout << "  Exit Code: " << res.exit_code << "\n";
-            std::cout << "  Stdout: " << res.stdout_output << "\n";
-            std::cout << "  Stderr: " << res.stderr_output << "\n\n";
+            std::cout << "  Exit Code: " << exit_code << "\n";
+            std::cout << "  Stdout: \n\n" << stdout_output << "\n";
+            std::cout << "  Stderr: \n" << stderr_output << "\n\n";
         }
 
         // Iterate over the pipeline items and display their JSON representation

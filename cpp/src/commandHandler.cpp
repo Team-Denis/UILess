@@ -1,6 +1,6 @@
-#include <algorithm>
-
 #include "commandHandler.hpp"
+
+#include <iostream>
 
 // Initialize Commands (ensure this is called before using CommandHandler)
 extern void initializeCommands();
@@ -77,14 +77,23 @@ nlohmann::json EndCommand::argsAsJSON() const {
 // PipelineItem Implementation
 void PipelineItem::setStartCommand(const StartCommand& cmd) {
     start_command = cmd;
+    std::cout << "PipelineItem: Set StartCommand - cmd: " << cmd.getCmd() << ", args: ";
+    for (const auto& arg : cmd.getArgs()) std::cout << arg << " ";
+    std::cout << std::endl; // Debug
 }
 
 void PipelineItem::addMiddleCommand(const MiddleCommand& cmd) {
     middle_commands.push_back(cmd);
+    std::cout << "PipelineItem: Added MiddleCommand - cmd: " << cmd.getCmd() << ", args: ";
+    for (const auto& arg : cmd.getArgs()) std::cout << arg << " ";
+    std::cout << std::endl; // Debug
 }
 
 void PipelineItem::setEndCommand(const EndCommand& cmd) {
     end_command = cmd;
+    std::cout << "PipelineItem: Set EndCommand - cmd: " << cmd.getCmd() << ", args: ";
+    for (const auto& arg : cmd.getArgs()) std::cout << arg << " ";
+    std::cout << std::endl; // Debug
 }
 
 const std::optional<StartCommand>& PipelineItem::getStartCommand() const {
@@ -124,6 +133,11 @@ nlohmann::json PipelineItem::asJSON() const {
 // CommandPipeline Implementation
 void CommandPipeline::addPipelineItem(const PipelineItem& item) {
     pipeline_items.push_back(item);
+    std::cout << "CommandPipeline: Added PipelineItem with "
+              << (item.getStartCommand().has_value() ? "StartCommand, " : "")
+              << (!item.getMiddleCommands().empty() ? std::to_string(item.getMiddleCommands().size()) + " MiddleCommands, " : "")
+              << (item.getEndCommand().has_value() ? "EndCommand" : "")
+              << std::endl; // Debug
 }
 
 nlohmann::json CommandPipeline::asJSON() const {
@@ -154,115 +168,101 @@ bool CommandHandler::parseInput(const std::string& input, std::string& errorMess
         return false;
     }
 
-    size_t i = 0;
-    PipelineItem currentItem;
-    bool parallelFlagDetected = false;
-    bool expectCommand = true; // To track if a command is expected next
+    // Split the tokens into separate commands based on '|'
+    std::vector<std::vector<std::string>> commands;
+    std::vector<std::string> current_command;
 
-    while (i < tokens.size()) {
-        std::string token = tokens[i];
-
-        // Check for parallel flag '-p'
-        if (token == "-p") {
-            if (parallelFlagDetected) {
-                errorMessage = "Duplicate '-p' flag detected.";
-                return false;
-            }
-            parallelFlagDetected = true;
-            pipeline.setParallel(true);
-            i++; // Move to next token
-            continue;
-        }
-
-        // If a pipeline symbol '|' is encountered unexpectedly
+    for (const auto& token : tokens) {
         if (token == "|") {
-            if (expectCommand) {
+            if (current_command.empty()) {
                 errorMessage = "Invalid syntax: '|' cannot start or appear consecutively.";
                 return false;
             }
-            expectCommand = true; // Next token should be a command
-            i++; // Move to next token
-            continue;
+            commands.push_back(current_command);
+            current_command.clear();
         }
+        else {
+            current_command.push_back(token);
+        }
+    }
 
-        // Expecting a command
-        if (!expectCommand) {
-            errorMessage = "Invalid syntax: Missing '|' between commands.";
+    if (!current_command.empty()) {
+        commands.push_back(current_command);
+    }
+
+    if (commands.empty()) {
+        errorMessage = "No commands found.";
+        return false;
+    }
+
+    // Now, for each command, validate and assign to PipelineItem
+    PipelineItem currentItem;
+
+    for (size_t cmd_idx = 0; cmd_idx < commands.size(); ++cmd_idx) {
+        const auto& cmd_tokens = commands[cmd_idx];
+        if (cmd_tokens.empty()) {
+            errorMessage = "Invalid syntax: Empty command.";
             return false;
         }
 
+        std::string cmd = cmd_tokens[0];
+        std::vector args(cmd_tokens.begin() + 1, cmd_tokens.end());
+
+        // Handle flags, e.g., '-p'
+        if (cmd == "-p") {
+            if (pipeline.isParallel()) {
+                errorMessage = "Duplicate '-p' flag detected.";
+                return false;
+            }
+            pipeline.setParallel(true);
+            std::cout << "CommandHandler: Detected parallel flag '-p'" << std::endl; // Debug
+            continue; // Flags are handled globally, not part of PipelineItem
+        }
+
         // Validate command
-        if (!CommandRegistry::getInstance().isCommandSupported(token)) {
-            errorMessage = "Unsupported command: " + token;
+        if (!CommandRegistry::getInstance().isCommandSupported(cmd)) {
+            errorMessage = "Unsupported command: " + cmd;
             return false;
         }
 
         // Get command specification
-        const CommandSpec* spec = CommandRegistry::getInstance().getCommandSpec(token);
+        const CommandSpec* spec = CommandRegistry::getInstance().getCommandSpec(cmd);
         if (!spec) {
-            errorMessage = "Command specification not found for: " + token;
+            errorMessage = "Command specification not found for: " + cmd;
             return false;
         }
 
-        // Collect arguments based on spec
-        std::vector<std::string> args;
-        size_t args_needed = spec->args.size();
-        bool args_valid = true;
-
-        for (size_t arg_idx = 0; arg_idx < args_needed; ++arg_idx) {
-            if (i + 1 >= tokens.size()) {
-                errorMessage = "Insufficient arguments for command: " + token;
-                return false;
-            }
-
-            std::string arg = tokens[i + 1];
-
-            // If the argument is a flag '-p', handle it
-            if (arg == "-p") {
-                if (parallelFlagDetected) {
-                    errorMessage = "Duplicate '-p' flag detected.";
-                    return false;
-                }
-                parallelFlagDetected = true;
-                pipeline.setParallel(true);
-                i += 2; // Consume command and flag
-                args_valid = false; // Current command does not get this argument
-                break;
-            }
-
-            args.push_back(arg);
-            i += 1;
+        // Check arguments
+        if (args.size() < spec->args.size()) {
+            errorMessage = "Insufficient arguments for command: " + cmd;
+            return false;
         }
 
-        if (!args_valid) {
-            continue; // Move to next token
-        }
-
-        i += 1; // Move past the command
-
-        // Add command to the current pipeline item
-        if (!currentItem.getStartCommand().has_value()) {
-            // First command in the pipeline item
-            StartCommand startCmd(token, args);
+        // Assign to stcmd, mdcmd, or edcmd based on command position and type
+        if (cmd_idx == 0) {
+            // StartCommand
+            StartCommand startCmd(cmd, args);
             currentItem.setStartCommand(startCmd);
-        } else if (i < tokens.size() && tokens[i] != "|") {
-            // If not followed by '|', it's the last command in the pipeline
-            EndCommand endCmd(token, args);
+        }
+        else if (cmd_idx == commands.size() - 1 && cmd == "FILEWRITE") {
+            // If last command is FILEWRITE, set as edcmd
+            EndCommand endCmd(cmd, args);
             currentItem.setEndCommand(endCmd);
-        } else {
+        }
+        else {
             // Middle command
-            MiddleCommand middleCmd(token, args);
+            MiddleCommand middleCmd(cmd, args);
             currentItem.addMiddleCommand(middleCmd);
         }
-
-        expectCommand = false; // Next token should be '|' or end
     }
 
-    // After parsing all tokens, ensure that we have a complete PipelineItem
+    // Add the PipelineItem to the pipeline
+    // Check that the PipelineItem has at least StartCommand and one other command
     if (currentItem.getStartCommand().has_value() &&
         (currentItem.getEndCommand().has_value() || !currentItem.getMiddleCommands().empty())) {
         pipeline.addPipelineItem(currentItem);
-    } else {
+    }
+    else {
         errorMessage = "Incomplete pipeline. Ensure all commands have necessary arguments.";
         return false;
     }
