@@ -1,99 +1,68 @@
-#include <thread>
-#include <stdlib.h>
-#include <iostream>
-#include <stdio.h>
-#include <queue>
-#include <vector>
-#include <mutex>
+#include "cmd_thread.hpp"
 
-#include "pipelineRunner.hpp"
+ThreadSafeCmdProcessor::ThreadSafeCmdProcessor() : thread_running(false) {}
 
 
-class ThreadSafeCmdProcessor {
-    public:
-        ThreadSafeCmdProcessor() : thread_running(false) {}
+void ThreadSafeCmdProcessor::start_thread() {
+    thread_running = true;
+    t = std::thread(&ThreadSafeCmdProcessor::thread_func, this);
+}
 
-        void start_thread() {
-            thread_running = true;
-            t(thread_func);
-        }
+void ThreadSafeCmdProcessor::stop_thread() {
+    running_mutex.lock();
+    thread_running = false;
+    running_mutex.unlock();
 
-        void stop_thread() {
-            running_mutex.lock();
-            thread_running = false;
+    if (t.joinable()) {
+        t.join();
+    }
+}
+
+void ThreadSafeCmdProcessor::push_task(CommandPipeline task) {
+    std::lock_guard<std::mutex> lock(tasks_mutex);
+    tasks.push(task);
+}
+
+bool ThreadSafeCmdProcessor::isResultAvailable() {
+    std::lock_guard<std::mutex> lock(results_mutex);
+    return !results.empty();
+}
+
+Result ThreadSafeCmdProcessor::pop_result() {
+    std::lock_guard<std::mutex> lock(results_mutex);
+    Result out = results.front();
+    results.pop();
+    return out;
+}
+
+void ThreadSafeCmdProcessor::thread_func() {
+    for (;;) {
+        running_mutex.lock();
+        if (!thread_running) {
             running_mutex.unlock();
-
-            t.join();
+            break;
         }
+        running_mutex.unlock();
 
-        void push_task(CommandPipeline &task) {
-            tasks_mutex.lock();
-            tasks.push(task);
-            tasks_mutex.unlock();
+        if (!tasks.empty()) {
+            CommandPipeline task = pop_task();
+            
+            std::vector<Result> res = runPipeline(task);
+            push_result(res);
         }
+    }
+}
 
-        bool isResultAvailable() {
-            results_mutex.lock();
-            size_t size = results.size();
-            results_mutex.unlock();
+CommandPipeline ThreadSafeCmdProcessor::pop_task() {
+    std::lock_guard<std::mutex> lock(tasks_mutex);
+    CommandPipeline out = tasks.front();
+    tasks.pop();
+    return out;
+}
 
-            return size > 0;
-        }
-
-        Result pop_result() {
-            results_mutex.lock();
-
-            Result out = results.front();
-            results.pop();
-
-            results_mutex.unlock();
-
-            return out;
-
-        }
-
-    private:
-        std::thread t;
-        std::queue<CommandPipeline> tasks;
-        std::queue<Result> results;
-        std::mutex tasks_mutex;
-        std::mutex results_mutex;
-        std::mutex running_mutex;
-        bool thread_running;
-
-        void thread_func() {
-
-            for (;;) {
-
-                running_mutex.lock();
-                if (thread_running == true) break;
-                running_mutex.unlock();
-
-                if (tasks.size() > 0) {
-                    std::vector<CommandPipeline> task = pop_task();
-                    Result res = runPipeline(task);
-                    push_result(res);
-                }
-
-            }
-        }
-
-        std::vector<CommandPipeline> pop_task() {
-            tasks_mutex.lock();
-
-            std::vector<CommandPipeline> out = tasks.front();
-            tasks.pop();
-
-            tasks_mutex.unlock();
-
-            return out;
-        }
-
-        void push_result(Result result) {
-            results_mutex.lock();
-
-            results.push(result);
-
-            results_mutex.unlock();
-        }
-};
+void ThreadSafeCmdProcessor::push_result(std::vector<Result> results) {
+    std::lock_guard<std::mutex> lock(results_mutex);
+    for (const auto& result : results) {
+        this->results.push(result);
+    }
+}

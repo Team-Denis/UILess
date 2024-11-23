@@ -6,7 +6,7 @@ project(UILessShell)
 set(CMAKE_CXX_STANDARD 23)
 
 # Compiler warnings and optimization flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wextra -O2")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wextra -O2 -g")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow -Wformat=2 -Wfloat-equal -Wconversion -Wlogical-op \
                      -Wshift-overflow=2 -Wduplicated-cond -Wcast-qual -Wcast-align \
                      -Wnull-dereference -Wold-style-cast -Wuseless-cast \
@@ -40,11 +40,14 @@ if(BUILD_TESTS)
     include_directories(include)
 
     # Add test executable
-    add_executable(tests tests/tests.cpp src/commandHandler.cpp src/pipelineRunner.cpp src/result.cpp)
+    add_executable(pipeline_tests tests/tests.cpp src/commandHandler.cpp src/pipelineRunner.cpp src/result.cpp)
+    add_executable(thread_tests tests/test_thread.cpp src/commandHandler.cpp src/pipelineRunner.cpp src/result.cpp src/cmd_thread.cpp)
 
     # Link libraries to test executable
-    target_link_libraries(tests PRIVATE raylib PRIVATE nlohmann_json::nlohmann_json)
+    target_link_libraries(pipeline_tests PRIVATE raylib PRIVATE nlohmann_json::nlohmann_json)
+    target_link_libraries(thread_tests PRIVATE raylib PRIVATE nlohmann_json::nlohmann_json)
 
     # Register the test
-    add_test(NAME RunTests COMMAND tests)
+    add_test(NAME RunTests COMMAND pipeline_tests)
+    add_test(NAME RunThreadTests COMMAND thread_tests)
 endif()
