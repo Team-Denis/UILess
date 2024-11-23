@@ -1,8 +1,6 @@
-#include <stdlib.h>
-#include <stdio.h>
 #include <string>
 #include <raylib.h>
-#include <raymath.h>
+#include <utility>
 #include <vector>
 
 class Box {
@@ -12,9 +10,9 @@ class Box {
     std::string name;
 
     Box(Rectangle rect, Color color, std::string name)
-        : rect(rect), color(color), name(name) {}
+        : rect(rect), color(color), name(std::move(name)) {}
 
-    void display() {
+    void display() const {
         DrawRectangleRec(rect, color);
         DrawText(name.c_str(), (int)(rect.x + rect.width - MeasureText(name.c_str(), 10) - 12),
             (int)(rect.y + rect.height - 20), 10, WHITE);
@@ -47,7 +45,7 @@ int main() {
 
 
     Rectangle colorsRecs[num_boxes];     // Rectangles array
-    std::vector<int> colorState(num_boxes, 0);
+    std::vector colorState(num_boxes, 0);
 
     // Fills colorsRecs data (for every rectangle)
     for (int i = 0; i < num_boxes; i++)
@@ -68,7 +66,7 @@ int main() {
             selectedBox = -1;
 
             if (CheckCollisionPointRec(mousePoint, canvas)) {
-                if (boxes.size() == 0) {
+                if (boxes.empty()) {
                     boxes.push_back(Box({canvas.x + 20, canvas.y + 20, 100, 100}, RED, dragBox.name));
                 }
                 else {
