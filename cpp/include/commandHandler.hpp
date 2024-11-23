@@ -21,11 +21,11 @@ class Command {
 public:
     virtual ~Command() = default;
 
-    virtual CommandType get_type() const = 0;
-    virtual nlohmann::json as_json() const = 0;
+    [[nodiscard]] virtual CommandType get_type() const = 0;
+    [[nodiscard]] virtual nlohmann::json as_json() const = 0;
 
 protected:
-    virtual nlohmann::json args_as_json() const = 0;
+    [[nodiscard]] virtual nlohmann::json args_as_json() const = 0;
 
 protected:
     std::string cmd;
@@ -38,11 +38,11 @@ class StartCommand : public Command {
 public:
     StartCommand(const std::string& cmd, const StringList& args, int stream = 0);
 
-    CommandType get_type() const override;
-    nlohmann::json as_json() const override;
+    [[nodiscard]] CommandType get_type() const override;
+    [[nodiscard]] nlohmann::json as_json() const override;
 
 protected:
-    nlohmann::json args_as_json() const override;
+    [[nodiscard]] nlohmann::json args_as_json() const override;
 };
 
 // MiddleCommand Class
@@ -50,11 +50,11 @@ class MiddleCommand : public Command {
 public:
     MiddleCommand(const std::string& cmd, const StringList& args, int stream = 0);
 
-    CommandType get_type() const override;
-    nlohmann::json as_json() const override;
+    [[nodiscard]] CommandType get_type() const override;
+    [[nodiscard]] nlohmann::json as_json() const override;
 
 protected:
-    nlohmann::json args_as_json() const override;
+    [[nodiscard]] nlohmann::json args_as_json() const override;
 };
 
 // EndCommand Class
@@ -62,11 +62,11 @@ class EndCommand : public Command {
 public:
     EndCommand(const std::string& cmd, const StringList& args, int stream = 0);
 
-    CommandType get_type() const override;
-    nlohmann::json as_json() const override;
+    [[nodiscard]] CommandType get_type() const override;
+    [[nodiscard]] nlohmann::json as_json() const override;
 
 protected:
-    nlohmann::json args_as_json() const override;
+    [[nodiscard]] nlohmann::json args_as_json() const override;
 };
 
 // PipelineItem Class
@@ -76,7 +76,7 @@ public:
     void add_middle_command(std::shared_ptr<MiddleCommand> cmd);
     void set_end_command(std::shared_ptr<EndCommand> cmd);
 
-    nlohmann::json as_json() const;
+    [[nodiscard]] nlohmann::json as_json() const;
 
 private:
     std::shared_ptr<StartCommand> start_command;
@@ -89,7 +89,7 @@ class CommandPipeline {
 public:
     void add_pipeline_item(std::shared_ptr<PipelineItem> item);
 
-    nlohmann::json as_json() const;
+    [[nodiscard]] nlohmann::json as_json() const;
 
 private:
     std::vector<std::shared_ptr<PipelineItem>> pipeline_items;
