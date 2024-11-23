@@ -22,4 +22,9 @@ class CommandOutput:
     def stderr(self) -> str | None:
         return self._stderr
     
+    def __repr__(self) -> str:
+        return (f"CommandOutput(exit_code={self._exit_code}, "
+                f"stdout={repr(self._stdout)}, "
+                f"stderr={repr(self._stderr)})")
+    
 

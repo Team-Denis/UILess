@@ -73,7 +73,4 @@ class Parser:
 
 
 
-if __name__ == '__main__':
-    
-    c = Parser.run_parsing(fp=r'C:\Users\Antoine\Desktop\Odoo2024\python\test\tstcm.json')
-    print(c)
+

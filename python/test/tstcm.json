@@ -4,10 +4,9 @@
 
         {
             "stcmd":
-                {"cmd": "cat", "args": ["file.txt"], "stream": 0},
+                {"cmd": "cat", "args": ["file1.txt"], "stream": 0},
             "mdcmd": [
-                {"cmd": "sort", "args": [], "stream": 0},
-                {"cmd": "uniq", "args": [], "stream": 0}
+                {"cmd": "sort", "args": [], "stream": 0}
             ],
             "edcmd":
                 {"cmd": "FILEWRITE", "args": ["file2.txt"], "stream": 0}
