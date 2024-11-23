@@ -40,12 +40,12 @@ if(BUILD_TESTS)
     include_directories(include)
 
     # Add test executable
-    add_executable(pipeline_tests tests/tests.cpp src/commandHandler.cpp src/pipelineRunner.cpp src/result.cpp)
-    add_executable(thread_tests tests/test_thread.cpp src/commandHandler.cpp src/pipelineRunner.cpp src/result.cpp src/cmd_thread.cpp)
+    add_executable(pipeline_tests tests/pipelineTests.cpp src/commandHandler.cpp src/pipelineRunner.cpp src/result.cpp)
+    add_executable(thread_tests tests/threadingTests.cpp src/commandHandler.cpp src/pipelineRunner.cpp src/result.cpp src/cmdThread.cpp)
 
     # Link libraries to test executable
-    target_link_libraries(pipeline_tests PRIVATE raylib PRIVATE nlohmann_json::nlohmann_json)
-    target_link_libraries(thread_tests PRIVATE raylib PRIVATE nlohmann_json::nlohmann_json)
+    target_link_libraries(pipeline_tests PRIVATE nlohmann_json::nlohmann_json)
+    target_link_libraries(thread_tests PRIVATE nlohmann_json::nlohmann_json)
 
     # Register the test
     add_test(NAME RunTests COMMAND pipeline_tests)

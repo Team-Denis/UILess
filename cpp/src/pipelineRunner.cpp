@@ -2,7 +2,6 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <memory>
 #include <cstdio>
 
 #include <nlohmann/json.hpp>
@@ -24,9 +23,11 @@ std::string writeJsonToTempFile(const nlohmann::json& json_output) {
 
     // Write the JSON to the temporary file
     std::ofstream ofs(temp_json_file);
+
     if (!ofs) {
         throw std::runtime_error("Failed to open temporary file for writing");
     }
+
     ofs << json_output.dump(4);
     ofs.close();
 
@@ -69,6 +70,7 @@ std::string invokePythonScript(const std::string& json_file_path, bool parallel)
 /// Helper Function: Process Python Output
 std::vector<Result> processPythonOutput(const std::string& python_output) {
     std::vector<Result> results;
+
     try {
         // Parse the output as JSON
         nlohmann::json output_json = nlohmann::json::parse(python_output);
