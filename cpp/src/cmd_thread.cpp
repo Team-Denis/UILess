@@ -26,7 +26,7 @@ class ThreadSafeCmdProcessor {
             t.join();
         }
 
-        void push_task(CommandPipeline &task, bool parallel) {
+        void push_task(CommandPipeline &task) {
             tasks_mutex.lock();
             tasks.push(task);
             tasks_mutex.unlock();
@@ -97,10 +97,3 @@ class ThreadSafeCmdProcessor {
             results_mutex.unlock();
         }
 };
-
-
-int main() {
-
-
-    return 0;
-}
