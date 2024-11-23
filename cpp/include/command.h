@@ -3,7 +3,7 @@
 // FIXME: This file is just a weird draft for now
 
 #include <string>
-#include <nlohmann/json.hpp>
+#include <json.hpp>
 
 enum class CommandType {
   Begin,
