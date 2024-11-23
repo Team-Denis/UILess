@@ -40,7 +40,7 @@ if(BUILD_TESTS)
     include_directories(include)
 
     # Add test executable
-    add_executable(tests tests/tests.cpp src/commandHandler.cpp src/pipelineRunner.cpp)
+    add_executable(tests tests/tests.cpp src/commandHandler.cpp src/pipelineRunner.cpp src/result.cpp)
 
     # Link libraries to test executable
     target_link_libraries(tests PRIVATE raylib PRIVATE nlohmann_json::nlohmann_json)

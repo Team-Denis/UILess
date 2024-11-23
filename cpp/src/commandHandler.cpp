@@ -82,6 +82,18 @@ void PipelineItem::set_end_command(std::shared_ptr<EndCommand> cmd) {
     end_command = std::move(cmd);
 }
 
+std::shared_ptr<StartCommand> PipelineItem::get_start_command() const {
+    return start_command;
+}
+
+const std::vector<std::shared_ptr<MiddleCommand>>& PipelineItem::get_middle_commands() const {
+    return middle_commands;
+}
+
+std::shared_ptr<EndCommand> PipelineItem::get_end_command() const {
+    return end_command;
+}
+
 nlohmann::json PipelineItem::as_json() const {
     nlohmann::json json_item;
 
