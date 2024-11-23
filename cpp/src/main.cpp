@@ -1,4 +1,4 @@
-#include <colors.h>
+#include <colors.hpp>
 #include <raylib.h>
 
 const int padding = 20;
@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
             };
 
             if (ImGui::draw_run_button(run_button_center, run_button_radius)) {
-                TraceLog(TraceLogLevel::LOG_INFO, "Run button clicked");
+                TraceLog(LOG_INFO, "Run button clicked");
             }
         }
 

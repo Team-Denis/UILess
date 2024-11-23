@@ -29,3 +29,22 @@ find_package(nlohmann_json REQUIRED)
 # Executable target
 add_executable(${PROJECT_NAME} ${SRC_FILES})
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib PRIVATE nlohmann_json::nlohmann_json)
+
+# Option to build tests
+option(BUILD_TESTS "Build tests" ON)
+
+if(BUILD_TESTS)
+    # Enable testing
+    enable_testing()
+
+    include_directories(include)
+
+    # Add test executable
+    add_executable(tests tests/tests.cpp src/commandHandler.cpp src/pipelineRunner.cpp)
+
+    # Link libraries to test executable
+    target_link_libraries(tests PRIVATE raylib PRIVATE nlohmann_json::nlohmann_json)
+
+    # Register the test
+    add_test(NAME RunTests COMMAND tests)
+endif()
