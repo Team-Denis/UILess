@@ -87,10 +87,17 @@ private:
 // CommandPipeline Class
 class CommandPipeline {
 public:
+    CommandPipeline() : parallel(false) {}
+
     void add_pipeline_item(std::shared_ptr<PipelineItem> item);
 
     [[nodiscard]] nlohmann::json as_json() const;
 
+    // Parallel flag :headache:
+    void set_parallel(bool is_parallel) { parallel = is_parallel; }
+    [[nodiscard]] bool is_parallel() const { return parallel; }
+
 private:
     std::vector<std::shared_ptr<PipelineItem>> pipeline_items;
+    bool parallel;
 };

@@ -32,8 +32,11 @@ int main() {
         pipeline.add_pipeline_item(pipeline_item1);
         pipeline.add_pipeline_item(pipeline_item2);
 
+        // Set the parallel flag
+        pipeline.set_parallel(true); // Set to 'false' for sequential execution
+
         // Execute the pipeline with parallel flag set to true
-        std::string output_json = runPipeline(pipeline, true);
+        std::string output_json = runPipeline(pipeline);
 
         // Output the result
         std::cout << "Pipeline Output:\n" << output_json << std::endl;

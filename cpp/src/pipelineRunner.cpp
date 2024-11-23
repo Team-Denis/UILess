@@ -85,12 +85,15 @@ std::string processPythonOutput(const std::string& python_output) {
 }
 
 // Main Function: Run Pipeline
-std::string runPipeline(const CommandPipeline& pipeline, bool parallel) {
+std::string runPipeline(const CommandPipeline& pipeline) {
     // Serialize the pipeline to JSON
     nlohmann::json json_output = serializePipelineToJson(pipeline);
 
     // Write the JSON to a temporary file
     std::string temp_json_file = writeJsonToTempFile(json_output);
+
+    // Get the bool more beautifully :whocares:
+    bool parallel = pipeline.is_parallel();
 
     // Invoke the Python script and capture the output
     std::string python_output = invokePythonScript(temp_json_file, parallel);
