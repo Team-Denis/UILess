@@ -70,15 +70,18 @@ class EmojiGrabber:
     def convert_every_svg_to_png(dst: str) -> None:
         
         for f in os.listdir(dst):
-            if not f.endswith(".svg"):
+            if not f.endswith(".svg"):  # hardfix cuz lazy
                 continue
 
             cur: str = os.path.join(dst, f)
             png_cur_path: str = cur.replace('.svg', '.png')
 
+            size: str = "1024"
+
             command: list = [
                 "inkscape",
-                "-w", "1024", "-h", "1024",
+                "-w", size,
+                "-h", size,
                 cur,
                 "--export-type=png",
                 "--export-filename", png_cur_path]
