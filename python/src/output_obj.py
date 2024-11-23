@@ -4,22 +4,6 @@ import sys
 import os
 
 
-class Command:
-
-    def __init__(self, command: str, args: list['Command' | str]) -> None:
-        
-        self._command: str = command
-        self._args: 'Command' | str = args
-
-    @property
-    def command(self) -> str:
-        return self._command
-    
-    @property
-    def args(self) -> 'Command' | str:
-        return self._args
-    
-
 
 class CommandOutput:
 
@@ -37,3 +21,5 @@ class CommandOutput:
     
     def stderr(self) -> str | None:
         return self._stderr
+    
+
