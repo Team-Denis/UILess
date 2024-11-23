@@ -1,7 +1,6 @@
 
 
-import sys
-import os
+import json
 
 
 
@@ -29,5 +28,16 @@ class CommandOutput:
         return (f"CommandOutput(exit_code={self.exitcode}, "
                 f"stdout={repr(self.stdout)}, "
                 f"stderr={repr(self.stderr)})")
+    
+    def serialize_json(self) -> str:
+        
+        redic: dict = {
+            "exit_code": self.exitcode,
+            "stdout": self.stdout,
+            "stderr": self.stderr
+        }
+        
+        # json dump
+        return json.dumps(redic, ensure_ascii=False, indent=4)
     
 

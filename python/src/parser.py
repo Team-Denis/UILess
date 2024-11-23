@@ -24,6 +24,11 @@ class Parser:
         with open(fp, 'r') as f:
             d: any = json.load(f)
         return d
+    
+    @staticmethod
+    def load_json_from_raw(raw: str) -> any:
+        d: any = json.loads(raw)
+        return d
 
     @staticmethod
     def format_command(cmdict: dict) -> list:
@@ -65,12 +70,16 @@ class Parser:
         return commands
     
     @staticmethod
-    def run_parsing(fp: str) -> list[list[str]]:
-        
+    def run_parsing(fp: str) -> list[list[str]]:  
         rd: list[dict] = Parser.load_json(fp=fp)
         c: list[list[str]] = Parser.parse_pipeline_to_commands(pipeline=rd[Parser.PIPELINE_FLAG])
         return c
 
+    @staticmethod
+    def run_parsing_from_raw(raw: str) -> list[list[str]]:
+        rd: list[dict] = Parser.load_json_from_raw(raw=raw)
+        c: list[list[str]] = Parser.parse_pipeline_to_commands(pipeline=rd[Parser.PIPELINE_FLAG])
+        return c
 
 
 
