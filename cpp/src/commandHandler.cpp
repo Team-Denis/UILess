@@ -6,7 +6,7 @@
 extern void initializeCommands();
 
 // StartCommand Implementation
-StartCommand::StartCommand(const std::string &cmd, const StringList& args, int stream) {
+StartCommand::StartCommand(const std::string &cmd, const StringList& args, const int stream) {
     this->cmd = cmd;
     this->args = args;
     this->stream = stream;
