@@ -1,5 +1,5 @@
 # Minimum CMake version
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.27)
 
 # Project name and C++ standard
 project(UILessShell)
@@ -23,5 +23,9 @@ include_directories(include)
 # Source files
 file(GLOB SRC_FILES "src/*.cpp")
 
+find_package(raylib REQUIRED)
+find_package(nlohmann_json REQUIRED)
+
 # Executable target
 add_executable(${PROJECT_NAME} ${SRC_FILES})
+target_link_libraries(${PROJECT_NAME} PRIVATE raylib PRIVATE nlohmann_json::nlohmann_json)
