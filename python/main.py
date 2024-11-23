@@ -26,8 +26,30 @@ def main() -> None:
     else:
         out: list[CommandOutput] = Executor.execute_pipeline(pipeline=pipeline)
 
-    for r in out:
-        print(r.serialize_json())
+    if args.parallel:
+        # Collect all outputs into a list of dictionaries
+        results = []
+        for r in out:
+            cmd_output_dict = {
+                "exit_code": r.exitcode,
+                "stdout": r.stdout,
+                "stderr": r.stderr
+            }
+            results.append(cmd_output_dict)
+    else:
+        # Single pipeline output as a single dictionary
+        results = []
+        if out:
+            r = out[0]
+            cmd_output_dict = {
+                "exit_code": r.exitcode,
+                "stdout": r.stdout,
+                "stderr": r.stderr
+            }
+            results = cmd_output_dict
+
+        # Serialize and print the results
+    print(json.dumps(results, ensure_ascii=False, indent=4))
 
 if __name__ == '__main__':
     main()
