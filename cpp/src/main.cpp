@@ -3,6 +3,9 @@
 #include <commandHandler.hpp>
 #include <unordered_map>
 #include <vector>
+#include <stdlib.h>
+#include <iostream>
+#include <string>
 
 #include "cmdThread.hpp"
 #include "imGui.hpp"
@@ -76,6 +79,12 @@ int main(int argc, char **argv) {
             }
         }
 
+
+        if (IsKeyPressed(KEY_BACKSPACE)) {
+            std::cout << "TODO: Remove last item from pipeline" << std::endl;
+        }
+
+
         BeginDrawing();
 
         ClearBackground(Colors::BG1);
@@ -102,9 +111,11 @@ int main(int argc, char **argv) {
 
         ImGui::beginCMDBar(100, item, type_info);
 
-        if (ImGui::pushRoundIconButton("run", 40)) {
+        if (ImGui::pushRoundIconButton("run", 40) || IsKeyPressed(KEY_ENTER)) {
             pipeline.addPipelineItem(item);
             processor.pushTask(pipeline);
+
+            item = PipelineItem();
         }
 
         ImGui::beginOutputPanel();
