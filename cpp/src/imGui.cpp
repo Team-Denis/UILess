@@ -30,7 +30,7 @@ namespace ImGui {
 
         if (error) {
             // FIXME: Change to official color
-            DrawRectangleRounded(frame, radius, 20, RED);
+            DrawRectangleRounded(frame, radius, 20, Colors::RED1);
             frame.x += 4;
             frame.y += 4;
             frame.width -= 8;
@@ -334,13 +334,13 @@ namespace ImGui {
         Rectangle rect = {state.at.x + padding, state.at.y + padding, width, height};
 
         // Check if the exit code is 0 (Green) or not (Blue)
-        Color color = output.result.exit_code == 0 ? Colors::GREEN1 : Colors::BLUE1;
+        Color color = output.result.exit_code == 0 ? Colors::GREEN1 : Colors::RED1;
 
         DrawRectangleRounded(rect, 0.1f, 20, color);
 
         // Draw time
         std::string time = std::format("{:02}:{:02}:{:02}", output.datetime.tm_hour, output.datetime.tm_min, output.datetime.tm_sec);
-        DrawText(time.c_str(), rect.x + rect.width - MeasureText(time.c_str(), 20) - padding, rect.y + padding + 30, 20, WHITE);
+        DrawText(time.c_str(), rect.x + rect.width - MeasureText(time.c_str(), 20) - padding, rect.y + padding + 25, 20, WHITE);
 
         state.at.y += height + padding;
 

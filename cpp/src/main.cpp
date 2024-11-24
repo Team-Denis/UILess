@@ -46,6 +46,7 @@ int main(int argc, char **argv) {
     ImGui::loadTexture("wc",         "assets/scroll.png");
     ImGui::loadTexture("ps",         "assets/ledger.png");
     ImGui::loadTexture("FILEWRITE",  "assets/pencil.png");
+    ImGui::loadTexture("ok",  "assets/white_check_mark");
 
     ThreadSafeCmdProcessor processor;
     processor.startThread(); // Start the worker thread
@@ -120,7 +121,7 @@ int main(int argc, char **argv) {
         ImGui::pushButton("cat",        CommandType::Start,     CommandArgType::Filepath);
         ImGui::pushButton("grep",       CommandType::Middle,    CommandArgType::Text);
         ImGui::pushButton("rm",         CommandType::Start,     CommandArgType::Filepath);
-        ImGui::pushButton("mkdir",      CommandType::Start,     CommandArgType::Filepath);
+        ImGui::pushButton("mkdir",      CommandType::Start,     CommandArgType::NewFilepath);
         ImGui::pushButton("ifconfig",   CommandType::Start,     CommandArgType::None);
         ImGui::pushButton("ping",       CommandType::Start,     CommandArgType::Text);
         ImGui::pushButton("touch",      CommandType::Start,     CommandArgType::Filepath);
