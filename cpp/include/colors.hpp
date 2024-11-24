@@ -22,4 +22,8 @@ namespace Colors {
 
     // Weird naming due to namespace issue with raylib GREEN
     const Color GREEN1 = {0xA3, 0xBE, 0x8C, 0xFF};
+
+    const Color BEGIN_COMMAND_COLOR = {0xA3, 0xBE, 0x8C, 0xFF}; // PALE GREEN
+    const Color MIDDLE_COMMAND_COLOR = {0xB4, 0x8E, 0xAD, 0xFF}; // PALE PURPLE
+    const Color END_COMMAND_COLOR = {0xBF, 0x61, 0x6A, 0xFF}; // PALE RED
 }
