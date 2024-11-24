@@ -33,6 +33,13 @@ class Parser:
         res: list = list()
         # Cas de commande classique (cmd != FILEWRITE_COMMAND, (args), stream)
         if cmd and cmd != Parser.FILEWRITE_COMMAND:
+
+            # hardcoded because yolo
+
+            if cmd == 'wc': args.insert(0, '-l')
+            if cmd == 'grep': args.insert(0, '-Eo')
+            # if cmd == 'ls': args.insert(0, '-l')
+
             res += [cmd] + args
         
         # Cas de commande de fin
