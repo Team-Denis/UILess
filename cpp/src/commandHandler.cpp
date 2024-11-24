@@ -14,10 +14,13 @@ nlohmann::json PipelineItem::asJSON() const {
     nlohmann::json json_item;
 
     if (m_start_command.has_value()) {
+        std::cout << "BBBB" << std::endl;
         json_item.merge_patch(m_start_command->asJSON());
     }
 
     if (!m_middle_commands.empty()) {
+        std::cout << "AAA" << std::endl;
+
         nlohmann::json mdcmds_json = nlohmann::json::array();
         for (const auto& cmd : m_middle_commands) {
             mdcmds_json.emplace_back(cmd.asJSON());
@@ -26,8 +29,11 @@ nlohmann::json PipelineItem::asJSON() const {
     }
 
     if (m_end_command.has_value()) {
+        std::cout << "CCCC" << std::endl;
         json_item.merge_patch(m_end_command->asJSON());
     }
+
+    std::cout << "AAAAAHELLO: " << to_string(json_item) << std::endl;
 
     return json_item;
 }
@@ -79,6 +85,8 @@ nlohmann::json CommandPipeline::asJSON() const {
         pipeline_json.emplace_back(item.asJSON());
     }
 
+    std::cout << to_string(pipeline_json) << std::endl;
+
     return { {"pipeline", pipeline_json} };
 }
 
@@ -102,18 +110,8 @@ nlohmann::json Command::argsAsJSON() const {
             return nlohmann::json::array({});
         case CommandArgType::Filepath:
         case CommandArgType::Text:
+            assert(m_arg.value.has_value());
             return nlohmann::json::array({m_arg.value.value()});
-    }
-}
-
-nlohmann::json Command::typeAsJSON() const {
-    switch (m_type) {
-        case CommandType::Start:
-            return "stcmd";
-        case CommandType::Middle:
-            return "mdcmd";
-        case CommandType::End:
-            return "edcmd";
     }
 }
 
@@ -122,5 +120,14 @@ nlohmann::json Command::asJSON() const {
     json["cmd"] = m_name;
     json["args"] = argsAsJSON();
     json["stream"] = 0.0;
-    return { {typeAsJSON(), json} };
+
+    switch (m_type) {
+        case CommandType::Start:
+            return { "stcmd", json };
+        case CommandType::Middle:
+            return { "mdcmd", json };
+        case CommandType::End:
+            return { "edcmd", json };
+    }
+
 }

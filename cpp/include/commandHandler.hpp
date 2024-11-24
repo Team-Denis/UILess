@@ -52,8 +52,6 @@ public:
 private:
     [[nodiscard]] nlohmann::json argsAsJSON() const;
 
-    [[nodiscard]] nlohmann::json typeAsJSON() const;
-
     std::string m_name;
     CommandType m_type;
     CommandArg m_arg;
