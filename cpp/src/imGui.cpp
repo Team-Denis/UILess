@@ -35,8 +35,7 @@ namespace ImGui {
                        WHITE);
     }
 
-    bool pushRoundIconButton(std::string const &icon_name, float radius) {
-        Vector2 center{state.at.x + radius, state.at.y + radius};
+    bool pushActionButton(std::string const &icon_name, float radius, Vector2 center) {
 
         auto mouse = GetMousePosition();
         bool does_collide = CheckCollisionPointCircle(mouse, center, radius);
@@ -121,8 +120,8 @@ namespace ImGui {
         state.current_id++;
     }
 
-    void pushCMDButton(std::string const &cmd) {
-        auto emoji = strToTextureMap.at(cmd);
+    void pushCMDButton(Command &cmd) {
+        auto emoji = strToTextureMap.at(cmd.getName());
 
         if (float next_width = state.at.x + padding + 90; next_width > state.current_frame.width + state.current_frame.x) {
             state.at.x = state.current_frame.x + padding;
@@ -134,25 +133,10 @@ namespace ImGui {
         Rectangle frame{state.at.x, state.at.y, 90, 70};
 
         if (bool hover = CheckCollisionPointRec(mouse, frame); hover && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            TraceLog(LOG_INFO, "Dragged");
-
-            if (state.dragged == -1) {
-                state.dragged = state.current_id;
-                state.dragged_cmd_name = cmd;
-                state.anchor = Vector2Subtract(state.at, mouse);
-            }
+            // No drag
         }
 
-        if (state.dragged != state.current_id) {
-            drawButton(emoji, frame);
-        } else {
-            state.dragged_frame = Rectangle{
-                    mouse.x + state.anchor.x,
-                    mouse.y + state.anchor.y,
-                    frame.width,
-                    frame.height,
-            };
-        }
+        drawButton(emoji, frame);
 
         state.at.x += 90 + padding;
         state.current_id++;
@@ -165,8 +149,8 @@ namespace ImGui {
         }
     }
 
-    void beginCMDBar(float margin_right, PipelineItem &pipeline_item) {
-        float width = state.current_frame.width - 3 * padding - margin_right;
+    void beginCMDBar(PipelineItem &pipeline_item) {
+        float width = state.current_frame.width - 2 * padding;
         Rectangle frame{state.at.x, state.at.y, width, (2 * padding + 70)};
 
         bool collision = false;
@@ -198,7 +182,7 @@ namespace ImGui {
         std::optional<Command> end_cmd = pipeline_item.getEndCommand();
 
         if (start_cmd.has_value()) {
-            pushButton(start_cmd->getName(), start_cmd->getType(), start_cmd->getArgType());
+            pushCMDButton(start_cmd.value());
         }
 
         int potential_middle_insert = -1;
@@ -225,7 +209,7 @@ namespace ImGui {
                 }
             }
 
-            pushButton(val.getName(), val.getType(), val.getArgType());
+            pushCMDButton(val);
         }
 
         if (end_cmd.has_value()) {
@@ -249,7 +233,7 @@ namespace ImGui {
                 }
             }
 
-            pushButton(end_cmd->getName(), end_cmd->getType(), end_cmd->getArgType());
+            pushCMDButton(end_cmd.value());
         }
 
         // Handle normal drop

@@ -43,6 +43,16 @@ public:
         return m_arg.type;
     }
 
+    bool isComplete() {
+        switch (m_arg.type) {
+            case CommandArgType::None:
+                return true;
+            case CommandArgType::Filepath:
+            case CommandArgType::Text:
+                return m_arg.value.has_value();
+        }
+    }
+
     std::string &getName() {
         return m_name;
     }

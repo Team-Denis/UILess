@@ -3,6 +3,7 @@
 #include <commandHandler.hpp>
 #include <unordered_map>
 #include <vector>
+#include <raymath.h>
 
 #include "cmdThread.hpp"
 #include "imGui.hpp"
@@ -100,9 +101,9 @@ int main(int argc, char **argv) {
 
         ImGui::beginPanel(res.x - side_panel_width);
 
-        ImGui::beginCMDBar(100, item);
+        ImGui::beginCMDBar(item);
 
-        if (ImGui::pushRoundIconButton("run", 40)) {
+        if (ImGui::pushActionButton("run", 40, Vector2SubtractValue(res, 80))) {
             pipeline.addPipelineItem(item);
             processor.pushTask(pipeline);
         }

@@ -26,7 +26,7 @@ namespace ImGui {
 
     ImGuiState &getState();
 
-    bool pushRoundIconButton(std::string const & icon_name, float radius);
+    bool pushActionButton(std::string const & icon_name, float radius, Vector2 center);
 
     void pushFrame(Vector2 res);
 
@@ -37,7 +37,7 @@ namespace ImGui {
 
     void endFrame();
 
-    void beginCMDBar(float margin_right, PipelineItem &pipeline_item);
+    void beginCMDBar(PipelineItem &pipeline_item);
 
     // destroy any raylib shit
     void clear();
