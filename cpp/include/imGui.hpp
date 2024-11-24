@@ -9,6 +9,7 @@
 #include "result.hpp"
 
 const int padding = 20;
+const int max_output_result = 5;
 
 namespace ImGui {
     struct ImGuiState {

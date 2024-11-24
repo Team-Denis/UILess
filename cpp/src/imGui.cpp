@@ -210,6 +210,17 @@ namespace ImGui {
         state.at.y += padding;
     }
 
+    std::vector<std::string> split(const std::string& str, char delimiter) {
+        std::vector<std::string> tokens;
+        std::istringstream stream(str);
+        std::string token;
+
+        while (std::getline(stream, token, delimiter)) {
+            tokens.push_back(token);
+        }
+
+        return tokens;
+    }
 
     bool pushOutputResult(OutputResult output) {
         float width = state.current_frame.width - 4*padding;
@@ -223,7 +234,33 @@ namespace ImGui {
         DrawRectangleRounded(rect, 0.1f, 20, color);
 
         // Draw output text
-        DrawText(output.result.stdout_output.c_str(), rect.x + padding, rect.y + padding, 20, WHITE);
+        std::string text = output.result.stdout_output;
+        int fontSize = 20;
+        int lineHeight = fontSize + 5;
+        int maxLinesPerColumn = 3;
+
+        // Split text into multiple lines
+        std::vector<std::string> lines = split(text, '\n');
+
+        // Draw each line of text in columns
+        int max_col_width = 0;
+        int width_offset = 0;
+        for (size_t i = 0; i < lines.size(); ++i) {
+        
+            if (i % maxLinesPerColumn == 0 && i != 0) {
+                width_offset += max_col_width + padding;
+                max_col_width = 0;
+            }
+
+            DrawText(lines[i].c_str(), rect.x + padding + width_offset, rect.y + padding + lineHeight * (i % maxLinesPerColumn), fontSize, WHITE);
+            
+            int m = MeasureText(lines[i].c_str(), fontSize);
+            if (m > max_col_width) {
+                max_col_width = m;
+            }
+        }
+
+
         // Draw time
         std::string time = std::format("{:02}:{:02}:{:02}", output.datetime.tm_hour, output.datetime.tm_min, output.datetime.tm_sec);
         DrawText(time.c_str(), rect.x + rect.width - MeasureText(time.c_str(), 20) - padding, rect.y + padding + 30, 20, WHITE);

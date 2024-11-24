@@ -62,6 +62,10 @@ int main(int argc, char **argv) {
                 time_t t = time(nullptr);
                 output_result.datetime = *localtime(&t);
                 output_results.push_back(output_result);
+
+                if (output_results.size() > max_output_result) {
+                    output_results.erase(output_results.begin());
+                }
             }
 
             for (const auto &[exit_code, stdout_output, stderr_output]: new_results) {
@@ -108,6 +112,7 @@ int main(int argc, char **argv) {
         for (const auto &output_result: output_results) {
             ImGui::pushOutputResult(output_result);
         }
+
 
         ImGui::endPanel();
 
