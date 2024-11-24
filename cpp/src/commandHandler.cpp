@@ -11,20 +11,20 @@ extern void initializeCommands();
 nlohmann::json PipelineItem::asJSON() const {
     nlohmann::json json_item;
 
-    if (m_start_command.has_value()) {
-        json_item["stcmd"] = m_start_command->asJSON();
+    if (start_command.has_value()) {
+        json_item["stcmd"] = start_command->asJSON();
     }
 
-    if (!m_middle_commands.empty()) {
+    if (!middle_commands.empty()) {
         nlohmann::json mdcmds_json = nlohmann::json::array();
-        for (const auto &cmd: m_middle_commands) {
+        for (const auto &cmd: middle_commands) {
             mdcmds_json.emplace_back(cmd.asJSON());
         }
         json_item["mdcmd"] = mdcmds_json;
     }
 
-    if (m_end_command.has_value()) {
-        json_item["edcmd"] = m_end_command->asJSON();
+    if (end_command.has_value()) {
+        json_item["edcmd"] = end_command->asJSON();
     }
 
     std::cout << "PipelineItem JSON: " << json_item.dump() << std::endl;
@@ -38,30 +38,30 @@ int PipelineItem::pushCommand(const Command &cmd) {
         case PipeLineItemState::Start:
             TraceLog(LOG_INFO, "START");
             // Ensure the first command is a Start command
-            if (cmd.getType() != CommandType::Start) {
+            if (cmd.cmd_type != CommandType::Start) {
                 TraceLog(LOG_WARNING, "Expected Start Command.");
-                return -1; // Early exit on unexpected command type
+                return -1; // Early exit on unexpected command cmd_type
             }
 
-            m_start_command = cmd;
+            start_command = cmd;
             // Transitioning states manually – one wrong move and the whole pipeline collapses
             m_state = PipeLineItemState::Middle; // Transition to Middle state
             return 0;
 
         case PipeLineItemState::Middle: TraceLog(LOG_INFO, "MIDDLE");
-            if (cmd.getType() == CommandType::Middle) {
-                m_middle_commands.push_back(cmd);
+            if (cmd.cmd_type == CommandType::Middle) {
+                middle_commands.push_back(cmd);
                 return 0;
             }
 
-            if (cmd.getType() == CommandType::End) {
-                m_end_command = cmd;
+            if (cmd.cmd_type == CommandType::End) {
+                end_command = cmd;
                 m_state = PipeLineItemState::End; // Transition to End state
                 return 0;
             }
 
             TraceLog(LOG_WARNING, "Invalid Command Type in Middle State.");
-            return -1; // Invalid command type for Middle state
+            return -1; // Invalid command cmd_type for Middle state
 
         case PipeLineItemState::End: TraceLog(LOG_INFO, "END");
             // No commands should be added after End
@@ -79,9 +79,9 @@ void CommandPipeline::addPipelineItem(const PipelineItem& item) {
     pipeline_items.push_back(item);
     // Overkill debugging to confirm the addition of the PipelineItem
     std::cout << "CommandPipeline: Added PipelineItem with "
-              << (item.getStartCommand().has_value() ? "StartCommand, " : "")
-              << (!item.getMiddleCommands().empty() ? std::to_string(item.getMiddleCommands().size()) + " MiddleCommands, " : "")
-              << (item.getEndCommand().has_value() ? "EndCommand" : "")
+              << (item.start_command.has_value() ? "StartCommand, " : "")
+              << (!item.middle_commands.empty() ? std::to_string(item.middle_commands.size()) + " MiddleCommands, " : "")
+              << (item.end_command.has_value() ? "EndCommand" : "")
               << std::endl; // Debug
 }
 
@@ -115,10 +115,10 @@ const CommandPipeline& CommandHandler::getPipeline() const {
 // Convert command arguments to JSON format
 nlohmann::json Command::argsAsJSON() const {
     nlohmann::json args_json = nlohmann::json::array();
-    // Depending on the argument type, add it to the JSON array
-    if (m_arg.type == CommandArgType::Filepath || m_arg.type == CommandArgType::Text) {
-        if (m_arg.value.has_value()) {
-            args_json.emplace_back(m_arg.value.value());
+    // Depending on the argument cmd_type, add it to the JSON array
+    if (arg.type == CommandArgType::Filepath || arg.type == CommandArgType::Text) {
+        if (arg.value.has_value()) {
+            args_json.emplace_back(arg.value.value());
         }
     }
 
@@ -127,45 +127,45 @@ nlohmann::json Command::argsAsJSON() const {
 
 nlohmann::json Command::asJSON() const {
     nlohmann::json json;
-    json["cmd"] = m_name;
+    json["cmd"] = name;
     json["args"] = argsAsJSON();
     json["stream"] = 0; // Placeholder for stream information
 
-    switch (m_type) {
+    switch (cmd_type) {
         case CommandType::Start:
-            json["type"] = "stcmd";
+            json["cmd_type"] = "stcmd";
         break;
         case CommandType::Middle:
-            json["type"] = "mdcmd";
+            json["cmd_type"] = "mdcmd";
         break;
         case CommandType::End:
-            json["type"] = "edcmd";
+            json["cmd_type"] = "edcmd";
         break;
     }
 
     return json;
 }
 void PipelineItem::insertMiddleCommand(const Command &cmd, int relative_index) {
-    if (cmd.getType() != CommandType::Middle) {
+    if (cmd.cmd_type != CommandType::Middle) {
         TraceLog(LOG_INFO, "Tried to insert non-middle command into middle commands");
         return;
     };
 
-    m_middle_commands.insert(m_middle_commands.begin() + relative_index, cmd);
+    middle_commands.insert(middle_commands.begin() + relative_index, cmd);
 }
 
 void PipelineItem::deleteStartCommand() {
-    m_start_command.reset();
+    start_command.reset();
 }
 
 void PipelineItem::deleteEndCommand() {
-    m_end_command.reset();
+    end_command.reset();
 }
 
 void PipelineItem::swapMiddleCommands(size_t a, size_t b) {
-    std::swap(m_middle_commands[a], m_middle_commands[b]);
+    std::swap(middle_commands[a], middle_commands[b]);
 }
 
 void PipelineItem::deleteMiddleCommand(int relative_index) {
-    m_middle_commands.erase(m_middle_commands.begin() + relative_index);
+    middle_commands.erase(middle_commands.begin() + relative_index);
 }

@@ -8,6 +8,8 @@
 #include "cmdThread.hpp"
 #include "imGui.hpp"
 
+const int max_output_result = 5;
+
 constexpr int START_WIDTH = 1280;
 constexpr int START_HEIGHT = 800;
 
@@ -40,7 +42,7 @@ int main(int argc, char **argv) {
     ImGui::loadTexture("ifconfig",   "assets/globe_with_meridians.png");
     ImGui::loadTexture("ping",       "assets/ping_pong.png");
     ImGui::loadTexture("touch",      "assets/point_right.png");
-    ImGui::loadTexture("neofetch",   "assets/muscle.png");
+    ImGui::loadTexture("curl",       "assets/muscle.png");
     ImGui::loadTexture("wc",         "assets/scroll.png");
     ImGui::loadTexture("ps",         "assets/ledger.png");
     ImGui::loadTexture("FILEWRITE",  "assets/pencil.png");
@@ -49,6 +51,7 @@ int main(int argc, char **argv) {
     processor.startThread(); // Start the worker thread
     // Variables to handle results
     std::vector<Result> pending_results;
+    std::vector<ImGui::OutputResult> output_results;
 
     PipelineItem item;
 
@@ -59,6 +62,19 @@ int main(int argc, char **argv) {
             std::vector<Result> new_results = processor.popResults();
             pending_results.insert(pending_results.end(), new_results.begin(), new_results.end());
 
+            // Create output result struct
+            for (const auto &result: new_results) {
+                ImGui::OutputResult output_result;
+                output_result.result = result;
+                time_t t = time(nullptr);
+                output_result.datetime = *localtime(&t);
+                output_results.push_back(output_result);
+
+                if (output_results.size() > max_output_result) {
+                    output_results.erase(output_results.begin());
+                }
+            }
+
             for (const auto &[exit_code, stdout_output, stderr_output]: new_results) {
                 TraceLog(
                         LOG_INFO,
@@ -68,15 +84,15 @@ int main(int argc, char **argv) {
         }
 
         if (IsKeyPressed(KEY_BACKSPACE)) {
-            if (item.getEndCommand().has_value()) {
+            if (item.end_command.has_value()) {
                 printf("Deleting end command\n");
                 item.deleteEndCommand();
             }
-            else if (!item.getMiddleCommands().empty()) {
+            else if (!item.middle_commands.empty()) {
                 printf("Deleting middle command\n");
-                item.deleteMiddleCommand(item.getMiddleCommands().size() - 1);
+                item.deleteMiddleCommand(item.middle_commands.size() - 1);
             }
-            else if (item.getStartCommand().has_value()) {
+            else if (item.start_command.has_value()) {
                 printf("Deleting start command\n");
                 item.deleteStartCommand();
                 item = PipelineItem();
@@ -110,7 +126,7 @@ int main(int argc, char **argv) {
         ImGui::pushButton("ping",       CommandType::Start,     CommandArgType::Text);
         ImGui::pushButton("touch",      CommandType::Start,     CommandArgType::Filepath);
         ImGui::pushButton("wc",         CommandType::Middle,    CommandArgType::None);
-        ImGui::pushButton("neofetch",   CommandType::Start,     CommandArgType::None);
+        ImGui::pushButton("curl",       CommandType::Start,     CommandArgType::Text);
         ImGui::pushButton("ps",         CommandType::Start,     CommandArgType::None);
         ImGui::pushButton("FILEWRITE",  CommandType::End,       CommandArgType::Filepath);
 
@@ -120,10 +136,42 @@ int main(int argc, char **argv) {
 
         ImGui::beginCMDBar(item);
 
-        if (ImGui::pushActionButton("run", 40, Vector2SubtractValue(res, 80))) {
-            pipeline.addPipelineItem(item);
-            processor.pushTask(pipeline);
+        ImGui::beginOutputPanel();
+
+        for (const auto &output_result: output_results) {
+            ImGui::pushOutputResult(output_result);
         }
+
+        if (ImGui::pushActionButton("run", 50, Vector2SubtractValue(res, 60)) || IsKeyPressed(KEY_ENTER)) {
+            bool is_valid = item.start_command.has_value();
+
+            if (item.start_command.has_value()) {
+                if (!item.start_command->isComplete()) {
+                    is_valid = false;
+                }
+            }
+
+            if (item.end_command.has_value()) {
+                if (!item.end_command->isComplete()) {
+                    is_valid = false;
+                }
+            }
+
+
+            for (auto &cmd : item.middle_commands) {
+                if (!cmd.isComplete()) {
+                    is_valid = false;
+                }
+            }
+
+            if (is_valid) {
+                pipeline.addPipelineItem(item);
+                processor.pushTask(pipeline);
+
+                item = PipelineItem();
+            }
+        }
+
 
         ImGui::endPanel();
 

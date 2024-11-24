@@ -5,6 +5,7 @@
 
 #include <imGui.hpp>
 #include <colors.hpp>
+#include "osHelper.hpp"
 
 static std::unordered_map<std::string, Texture> strToTextureMap;
 
@@ -134,7 +135,7 @@ namespace ImGui {
     }
 
     void pushCMDButton(Command &cmd) {
-        auto emoji = strToTextureMap.at(cmd.getName());
+        auto emoji = strToTextureMap.at(cmd.name);
 
         if (float next_width = state.at.x + padding + 90; next_width > state.current_frame.width + state.current_frame.x) {
             state.at.x = state.current_frame.x + padding;
@@ -146,7 +147,22 @@ namespace ImGui {
         Rectangle frame{state.at.x, state.at.y, 90, 70};
 
         if (bool hover = CheckCollisionPointRec(mouse, frame); hover && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            // clicked
+            std::string res;
+            switch (cmd.arg.type) {
+                case CommandArgType::None:
+                    break;
+                case CommandArgType::Text:
+//                    openTextDialog(res);
+//                    cmd.arg.value = std::move(res);
+                    break;
+                case CommandArgType::Filepath:
+                    openFileDialog(res);
+                    res.pop_back();
+                    TraceLog(LOG_INFO, "Path %s", res.c_str());
+                    cmd.arg.value = std::move(res);
+
+                    break;
+            }
         }
 
         drawButton(emoji, frame, !cmd.isComplete());
@@ -191,17 +207,14 @@ namespace ImGui {
 
         state.at = Vector2AddValue(state.at, padding);
 
-        std::optional<Command> start_cmd = pipeline_item.getStartCommand();
-        std::optional<Command> end_cmd = pipeline_item.getEndCommand();
-
-        if (start_cmd.has_value()) {
-            pushCMDButton(start_cmd.value());
+        if (pipeline_item.start_command.has_value()) {
+            pushCMDButton(pipeline_item.start_command.value());
         }
 
         int potential_middle_insert = -1;
 
-        for (size_t i = 0; i < pipeline_item.getMiddleCommands().size(); i++) {
-            Command val = pipeline_item.getMiddleCommands()[i];
+        for (size_t i = 0; i < pipeline_item.middle_commands.size(); i++) {
+            Command &val = pipeline_item.middle_commands[i];
 
             Rectangle check_rec {
                     state.at.x - padding - 4,
@@ -225,7 +238,7 @@ namespace ImGui {
             pushCMDButton(val);
         }
 
-        if (end_cmd.has_value()) {
+        if (pipeline_item.end_command.has_value()) {
             // TODO: Remove duplicated code
             Rectangle check_rec {
                     state.at.x - padding - 4,
@@ -242,11 +255,11 @@ namespace ImGui {
 
                 if (CheckCollisionPointRec(dragged_center, check_rec)) {
                     state.at.x += 90 + padding;
-                    potential_middle_insert = pipeline_item.getMiddleCommands().size();
+                    potential_middle_insert = pipeline_item.middle_commands.size();
                 }
             }
 
-            pushCMDButton(end_cmd.value());
+            pushCMDButton(pipeline_item.end_command.value());
         }
 
         // Handle normal drop
@@ -274,10 +287,12 @@ namespace ImGui {
         }
 
 
-        state.at.x = old_x + width + padding;
-        state.at.y -= padding;
-
-        // TODO: put start button logic here
+//        state.at.x = old_x + width + padding;
+//        state.at.y -= padding;
+//
+        // Place "at" at the bottom of the cmd bar
+        state.at.x = state.current_frame.x + padding;
+        state.at.y = state.current_frame.y + 110 + padding;
     }
 
     void clear() {
@@ -287,4 +302,71 @@ namespace ImGui {
 
         strToTextureMap.clear();
     }
+
+    void beginOutputPanel() {
+        Rectangle frame = {state.at.x, state.at.y + padding, state.current_frame.width - 2*padding, state.current_frame.height - state.at.y - padding};
+//        DrawRectangleRounded(frame, 0.04f, 20, Colors::BG3);
+        state.at.y += padding;
+    }
+
+    std::vector<std::string> split(const std::string& str, char delimiter) {
+        std::vector<std::string> tokens;
+        std::istringstream stream(str);
+        std::string token;
+
+        while (std::getline(stream, token, delimiter)) {
+            tokens.push_back(token);
+        }
+
+        return tokens;
+    }
+
+    bool pushOutputResult(OutputResult output) {
+        float width = state.current_frame.width - 4*padding;
+        float height = 100;
+
+        Rectangle rect = {state.at.x + padding, state.at.y + padding, width, height};
+
+        // Check if the exit code is 0 (Green) or not (Blue)
+        Color color = output.result.exit_code == 0 ? Colors::GREEN1 : Colors::BLUE1;
+
+        DrawRectangleRounded(rect, 0.1f, 20, color);
+
+        // Draw output text
+        std::string text = output.result.stdout_output;
+        int fontSize = 20;
+        int lineHeight = fontSize + 5;
+        int maxLinesPerColumn = 3;
+
+        // Split text into multiple lines
+        std::vector<std::string> lines = split(text, '\n');
+
+        // Draw each line of text in columns
+        int max_col_width = 0;
+        int width_offset = 0;
+        for (size_t i = 0; i < lines.size(); ++i) {
+
+            if (i % maxLinesPerColumn == 0 && i != 0) {
+                width_offset += max_col_width + padding;
+                max_col_width = 0;
+            }
+
+            DrawText(lines[i].c_str(), rect.x + padding + width_offset, rect.y + padding + lineHeight * (i % maxLinesPerColumn), fontSize, WHITE);
+
+            int m = MeasureText(lines[i].c_str(), fontSize);
+            if (m > max_col_width) {
+                max_col_width = m;
+            }
+        }
+
+
+        // Draw time
+        std::string time = std::format("{:02}:{:02}:{:02}", output.datetime.tm_hour, output.datetime.tm_min, output.datetime.tm_sec);
+        DrawText(time.c_str(), rect.x + rect.width - MeasureText(time.c_str(), 20) - padding, rect.y + padding + 30, 20, WHITE);
+
+        state.at.y += height + padding;
+
+        return CheckCollisionPointRec(GetMousePosition(), rect);
+    }
+
 }

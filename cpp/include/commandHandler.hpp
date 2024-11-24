@@ -27,44 +27,29 @@ struct CommandArg {
 };
 
 // Base Command Class
-class Command {
-public:
+struct Command {
     Command(std::string &name, CommandType type, CommandArg &arg) {
-        m_name = name;
-        m_type = type;
-        m_arg = arg;
+        this->name = name;
+        this->cmd_type = type;
+        this->arg = arg;
     }
 
-    [[nodiscard]] CommandType getType() const {
-        return m_type;
-    }
-
-    [[nodiscard]] CommandArgType getArgType() const {
-        return m_arg.type;
-    }
-
-    bool isComplete() {
-        switch (m_arg.type) {
+    [[nodiscard]] bool isComplete() const {
+        switch (arg.type) {
             case CommandArgType::None:
                 return true;
             case CommandArgType::Filepath:
             case CommandArgType::Text:
-                return m_arg.value.has_value();
+                return arg.value.has_value();
         }
     }
 
-    std::string &getName() {
-        return m_name;
-    }
-
     [[nodiscard]] nlohmann::json asJSON() const;
-
-private:
     [[nodiscard]] nlohmann::json argsAsJSON() const;
 
-    std::string m_name;
-    CommandType m_type;
-    CommandArg m_arg;
+    std::string name;
+    CommandType cmd_type;
+    CommandArg arg;
 };
 
 enum class PipeLineItemState {
@@ -83,25 +68,12 @@ public:
     void swapMiddleCommands(size_t a, size_t b);
     void deleteMiddleCommand(int relative_index);
 
-
-    [[nodiscard]] const std::optional<Command> &getStartCommand() const {
-        return m_start_command;
-    }
-
-    [[nodiscard]] const std::vector<Command> &getMiddleCommands() const {
-        return m_middle_commands;
-    }
-
-    [[nodiscard]] const std::optional<Command> &getEndCommand() const {
-        return m_end_command;
-    }
+    std::optional<Command>  start_command;
+    std::optional<Command>  end_command;
+    std::vector<Command>    middle_commands;
 
     [[nodiscard]] nlohmann::json asJSON() const;
-
 private:
-    std::optional<Command>  m_start_command;
-    std::optional<Command>  m_end_command;
-    std::vector<Command>    m_middle_commands;
     PipeLineItemState       m_state = PipeLineItemState::Start;
 };
 

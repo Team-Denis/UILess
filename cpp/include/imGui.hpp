@@ -3,6 +3,7 @@
 #include <raylib.h>
 #include <string>
 #include "commandHandler.hpp"
+#include "result.hpp"
 
 const int padding = 20;
 
@@ -22,6 +23,12 @@ namespace ImGui {
         Vector2 res{};
     };
 
+    struct OutputResult {
+        Result result;
+        struct tm datetime;
+    };
+
+
     void loadTexture(const std::basic_string<char>& name, const char *fileName);
 
     ImGuiState &getState();
@@ -38,6 +45,9 @@ namespace ImGui {
     void endFrame();
 
     void beginCMDBar(PipelineItem &pipeline_item);
+
+    void beginOutputPanel();
+    bool pushOutputResult(OutputResult output);
 
     // destroy any raylib shit
     void clear();
