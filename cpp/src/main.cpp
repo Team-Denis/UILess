@@ -3,6 +3,7 @@
 #include <commandHandler.hpp>
 #include <unordered_map>
 #include <vector>
+#include <raymath.h>
 
 #include "cmdThread.hpp"
 #include "imGui.hpp"
@@ -24,26 +25,10 @@ int main(int argc, char **argv) {
 
     SetTargetFPS(60);
 
-    // Shader shader = LoadShader(nullptr, TextFormat("shaders/blur.glsl", 330));
-    std::unordered_map<std::string,    std::pair<CommandType,                CommandArgType>> type_info;
-    type_info.emplace("ls",         std::pair{CommandType::Start,   CommandArgType::None});
-    type_info.emplace("cat",        std::pair{CommandType::Start,   CommandArgType::Filepath});
-    type_info.emplace("grep",       std::pair{CommandType::Middle,  CommandArgType::Text});
-    type_info.emplace("rm",         std::pair{CommandType::Start,   CommandArgType::Filepath});
-    type_info.emplace("mkdir",      std::pair{CommandType::Start,   CommandArgType::Filepath});
-    type_info.emplace("cd",         std::pair{CommandType::Start,   CommandArgType::Filepath});
-    type_info.emplace("ifconfig",   std::pair{CommandType::Start,   CommandArgType::None});
-    type_info.emplace("ping",       std::pair{CommandType::Start,   CommandArgType::Text});
-    type_info.emplace("touch",      std::pair{CommandType::Start,   CommandArgType::Filepath});
-    type_info.emplace("wc",         std::pair{CommandType::Middle,  CommandArgType::Filepath});
-    type_info.emplace("neofetch",   std::pair{CommandType::Start,   CommandArgType::None});
-    type_info.emplace("ps",         std::pair{CommandType::Start,   CommandArgType::None});
-    type_info.emplace("FILEWRITE",  std::pair{CommandType::End,     CommandArgType::Filepath});
-
     CommandPipeline pipeline;
 
     // Utility textures
-    ImGui::loadTexture("run",        "assets/run.png");
+    ImGui::loadTexture("run",  "assets/run.png");
 
     // Command textures
     ImGui::loadTexture("ls",         "assets/mag.png");
@@ -98,17 +83,27 @@ int main(int argc, char **argv) {
 
         ImGui::beginPanel(side_panel_width);
 
-        ImGui::pushButton("cat");
-        ImGui::pushButton("grep");
-        ImGui::pushButton("ls");
+        ImGui::pushButton("ls",         CommandType::Start,     CommandArgType::None);
+        ImGui::pushButton("cat",        CommandType::Start,     CommandArgType::Filepath);
+        ImGui::pushButton("grep",       CommandType::Middle,    CommandArgType::Text);
+        ImGui::pushButton("rm",         CommandType::Start,     CommandArgType::Filepath);
+        ImGui::pushButton("mkdir",      CommandType::Start,     CommandArgType::Filepath);
+        ImGui::pushButton("cd",         CommandType::Start,     CommandArgType::Filepath);
+        ImGui::pushButton("ifconfig",   CommandType::Start,     CommandArgType::None);
+        ImGui::pushButton("ping",       CommandType::Start,     CommandArgType::Text);
+        ImGui::pushButton("touch",      CommandType::Start,     CommandArgType::Filepath);
+        ImGui::pushButton("wc",         CommandType::Middle,    CommandArgType::Filepath);
+        ImGui::pushButton("neofetch",   CommandType::Start,     CommandArgType::None);
+        ImGui::pushButton("ps",         CommandType::Start,     CommandArgType::None);
+        ImGui::pushButton("FILEWRITE",  CommandType::End,       CommandArgType::Filepath);
 
         ImGui::endPanel();
 
         ImGui::beginPanel(res.x - side_panel_width);
 
-        ImGui::beginCMDBar(100, item, type_info);
+        ImGui::beginCMDBar(item);
 
-        if (ImGui::pushRoundIconButton("run", 40)) {
+        if (ImGui::pushActionButton("run", 40, Vector2SubtractValue(res, 80))) {
             pipeline.addPipelineItem(item);
             processor.pushTask(pipeline);
         }

@@ -35,8 +35,7 @@ namespace ImGui {
                        WHITE);
     }
 
-    bool pushRoundIconButton(std::string const &icon_name, float radius) {
-        Vector2 center{state.at.x + radius, state.at.y + radius};
+    bool pushActionButton(std::string const &icon_name, float radius, Vector2 center) {
 
         auto mouse = GetMousePosition();
         bool does_collide = CheckCollisionPointCircle(mouse, center, radius);
@@ -82,7 +81,7 @@ namespace ImGui {
         state.at.y = 0;
     }
 
-    void pushButton(std::string const &cmd) {
+    void pushButton(std::string const &cmd, CommandType type, CommandArgType arg_type) {
         auto emoji = strToTextureMap.at(cmd);
 
         if (float next_width = state.at.x + padding + 90; next_width > state.current_frame.width + state.current_frame.x) {
@@ -100,6 +99,8 @@ namespace ImGui {
             if (state.dragged == -1) {
                 state.dragged = state.current_id;
                 state.dragged_cmd_name = cmd;
+                state.dragged_type = type;
+                state.dragged_arg_type = arg_type;
                 state.anchor = Vector2Subtract(state.at, mouse);
             }
         }
@@ -119,6 +120,28 @@ namespace ImGui {
         state.current_id++;
     }
 
+    void pushCMDButton(Command &cmd) {
+        auto emoji = strToTextureMap.at(cmd.getName());
+
+        if (float next_width = state.at.x + padding + 90; next_width > state.current_frame.width + state.current_frame.x) {
+            state.at.x = state.current_frame.x + padding;
+            state.at.y += 70 + padding;
+        }
+
+        auto mouse = GetMousePosition();
+
+        Rectangle frame{state.at.x, state.at.y, 90, 70};
+
+        if (bool hover = CheckCollisionPointRec(mouse, frame); hover && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            // No drag
+        }
+
+        drawButton(emoji, frame);
+
+        state.at.x += 90 + padding;
+        state.current_id++;
+    }
+
     void endFrame() {
         // Draw things that are supposed to be on top
         if (state.dragged != -1) {
@@ -126,8 +149,8 @@ namespace ImGui {
         }
     }
 
-    void beginCMDBar(float margin_right, PipelineItem &pipeline_item, std::unordered_map<std::string, std::pair<CommandType, CommandArgType>> &type_info) {
-        float width = state.current_frame.width - 3 * padding - margin_right;
+    void beginCMDBar(PipelineItem &pipeline_item) {
+        float width = state.current_frame.width - 2 * padding;
         Rectangle frame{state.at.x, state.at.y, width, (2 * padding + 70)};
 
         bool collision = false;
@@ -137,26 +160,6 @@ namespace ImGui {
         }
 
         DrawRectangleRounded(frame, 0.15f, 20, collision && state.dragged != -1 ? Colors::BG4 : Colors::BG3);
-
-        // Handle normal drop
-        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON) && state.dragged != -1) {
-            state.dragged = -1;
-
-            if (collision) {
-                TraceLog(LOG_INFO, "Dropped");
-
-                std::string cmd_name = state.dragged_cmd_name;
-
-                auto [fst, snd] = type_info.at(std::string(state.dragged_cmd_name));
-
-                CommandArg arg{};
-                arg.type = snd;
-
-                if (int res = pipeline_item.pushCommand(Command(cmd_name, fst, arg)); res == -1) {
-                    TraceLog(LOG_INFO, "Incompatible item");
-                }
-            }
-        }
 
         // Handle file drop
         if (IsFileDropped()) {
@@ -179,16 +182,84 @@ namespace ImGui {
         std::optional<Command> end_cmd = pipeline_item.getEndCommand();
 
         if (start_cmd.has_value()) {
-            pushButton(start_cmd->getName());
+            pushCMDButton(start_cmd.value());
         }
 
-        for (Command val: pipeline_item.getMiddleCommands()) {
-            pushButton(val.getName());
+        int potential_middle_insert = -1;
+
+        for (size_t i = 0; i < pipeline_item.getMiddleCommands().size(); i++) {
+            Command val = pipeline_item.getMiddleCommands()[i];
+
+            Rectangle check_rec {
+                    state.at.x - padding - 4,
+                    state.at.y,
+                    90 + padding,
+                    70,
+            };
+
+            if (state.dragged != -1) {
+                Vector2 dragged_center {
+                        state.dragged_frame.x + state.dragged_frame.width / 2.0f,
+                        state.dragged_frame.y + state.dragged_frame.height / 2.0f,
+                };
+
+                if (CheckCollisionPointRec(dragged_center, check_rec)) {
+                    state.at.x += 90 + padding;
+                    potential_middle_insert = i;
+                }
+            }
+
+            pushCMDButton(val);
         }
 
         if (end_cmd.has_value()) {
-            pushButton(start_cmd->getName());
+            // TODO: Remove duplicated code
+            Rectangle check_rec {
+                    state.at.x - padding - 4,
+                    state.at.y,
+                    90 + padding,
+                    70,
+            };
+
+            if (state.dragged != -1) {
+                Vector2 dragged_center {
+                        state.dragged_frame.x + state.dragged_frame.width / 2.0f,
+                        state.dragged_frame.y + state.dragged_frame.height / 2.0f,
+                };
+
+                if (CheckCollisionPointRec(dragged_center, check_rec)) {
+                    state.at.x += 90 + padding;
+                    potential_middle_insert = pipeline_item.getMiddleCommands().size();
+                }
+            }
+
+            pushCMDButton(end_cmd.value());
         }
+
+        // Handle normal drop
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON) && state.dragged != -1) {
+            state.dragged = -1;
+
+            if (collision) {
+                TraceLog(LOG_INFO, "Dropped");
+
+                std::string cmd_name = state.dragged_cmd_name;
+
+                CommandArg arg{};
+                arg.type = state.dragged_arg_type;
+
+                auto cmd = Command(cmd_name, state.dragged_type, arg);
+
+                if (potential_middle_insert != -1) {
+                    pipeline_item.insertMiddleCommand(cmd, potential_middle_insert);
+                } else {
+                    if (int res = pipeline_item.pushCommand(cmd); res == -1) {
+                        TraceLog(LOG_INFO, "Incompatible item");
+                    }
+                }
+            }
+        }
+
 
         state.at.x = old_x + width + padding;
         state.at.y -= padding;

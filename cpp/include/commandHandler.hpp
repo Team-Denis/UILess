@@ -39,6 +39,20 @@ public:
         return m_type;
     }
 
+    [[nodiscard]] CommandArgType getArgType() const {
+        return m_arg.type;
+    }
+
+    bool isComplete() {
+        switch (m_arg.type) {
+            case CommandArgType::None:
+                return true;
+            case CommandArgType::Filepath:
+            case CommandArgType::Text:
+                return m_arg.value.has_value();
+        }
+    }
+
     std::string &getName() {
         return m_name;
     }
@@ -63,6 +77,12 @@ enum class PipeLineItemState {
 class PipelineItem {
 public:
     int pushCommand(const Command &cmd);
+    void insertMiddleCommand(const Command &cmd, int relative_index);
+    void deleteStartCommand();
+    void deleteEndCommand();
+    void swapMiddleCommands(size_t a, size_t b);
+    void deleteMiddleCommand(int relative_index);
+
 
     [[nodiscard]] const std::optional<Command> &getStartCommand() const {
         return m_start_command;
