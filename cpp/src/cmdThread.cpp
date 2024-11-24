@@ -1,20 +1,25 @@
 #include "cmdThread.hpp"
 
+// Constructor: Initialize thread state
 ThreadSafeCmdProcessor::ThreadSafeCmdProcessor()
     : thread_running(false) {}
 
+// Destructor: Ensure thread is stopped before destruction
 ThreadSafeCmdProcessor::~ThreadSafeCmdProcessor() {
     stopThread();
 }
 
+// Start the worker thread
 void ThreadSafeCmdProcessor::startThread() {
     std::lock_guard lock(running_mutex);
     if (!thread_running) {
         thread_running = true;
         worker_thread = std::thread(&ThreadSafeCmdProcessor::thread_func, this);
+        // Managing thread lifetimes manually is just the best
     }
 }
 
+// Stop the worker thread gracefully
 void ThreadSafeCmdProcessor::stopThread() {
     {
         std::lock_guard lock(running_mutex);
@@ -26,10 +31,11 @@ void ThreadSafeCmdProcessor::stopThread() {
     tasks_cv.notify_all(); // Wake up the thread if it's waiting
 
     if (worker_thread.joinable()) {
-        worker_thread.join();
+        worker_thread.join(); // Waiting indefinitely because C++ threads love blocking calls
     }
 }
 
+// Push a new task into the queue
 void ThreadSafeCmdProcessor::pushTask(CommandPipeline task) {
     {
         std::lock_guard lock(tasks_mutex);
@@ -38,11 +44,13 @@ void ThreadSafeCmdProcessor::pushTask(CommandPipeline task) {
     tasks_cv.notify_one(); // Notify the worker thread that a new task is available
 }
 
+// Check if any results are available
 bool ThreadSafeCmdProcessor::isResultAvailable() {
     std::lock_guard lock(results_mutex);
     return !results_queue.empty();
 }
 
+// Retrieve and clear all available results
 std::vector<Result> ThreadSafeCmdProcessor::popResults() {
     std::lock_guard lock(results_mutex);
     std::vector<Result> available_results;
@@ -55,6 +63,7 @@ std::vector<Result> ThreadSafeCmdProcessor::popResults() {
     return available_results;
 }
 
+// Worker thread function
 void ThreadSafeCmdProcessor::thread_func() {
     while (true) {
         CommandPipeline task;
@@ -98,6 +107,7 @@ void ThreadSafeCmdProcessor::thread_func() {
     }
 }
 
+// Pop a single task from the queue
 bool ThreadSafeCmdProcessor::popTask(CommandPipeline& task) {
     std::lock_guard lock(tasks_mutex);
 
@@ -110,6 +120,7 @@ bool ThreadSafeCmdProcessor::popTask(CommandPipeline& task) {
     return true;
 }
 
+// Push results into the results queue
 void ThreadSafeCmdProcessor::pushResults(const std::vector<Result>& results) {
     {
         std::lock_guard lock(results_mutex);

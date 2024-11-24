@@ -5,7 +5,7 @@
 
 #include <osHelper.hpp>
 
-void open_file_dialog(std::string &result) {
+void openFileDialog(std::string &result) {
     std::string out;
     char buffer[128];
 

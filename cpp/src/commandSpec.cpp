@@ -1,72 +1,73 @@
 #include "commandSpec.hpp"
 
+// C++ doesn't have a built-in command discovery mechanism...
 void initializeCommands() {
-    CommandRegistry& registry = CommandRegistry::getInstance();
+    CommandRegistry &registry = CommandRegistry::getInstance();
 
     registry.registerCommand(CommandSpec{
-            "cat",
-            {ArgType::File}
+        "cat",
+        {ArgType::File}
     });
 
     registry.registerCommand(CommandSpec{
-            "ls",
-            {ArgType::Folder}
+        "ls",
+        {ArgType::Folder}
     });
 
     registry.registerCommand(CommandSpec{
-            "rm",
-            {ArgType::File}
+        "rm",
+        {ArgType::File}
     });
 
     registry.registerCommand(CommandSpec{
-            "mkdir",
-            {ArgType::Folder}
+        "mkdir",
+        {ArgType::Folder}
     });
 
     // cat filename | grep pattern
-
+    // Because manually handling pipes in C++ is just the cherry on top of this delightful language
     registry.registerCommand(CommandSpec{
-            "grep",
-            {ArgType::String}
+        "grep",
+        {ArgType::String}
     });
 
     registry.registerCommand(CommandSpec{
-            "cd",
-            {ArgType::Folder}
+        "cd",
+        {ArgType::Folder}
     });
 
     registry.registerCommand(CommandSpec{
-            "ifconfig",
-            {ArgType::None}
+        "ifconfig",
+        {ArgType::None}
     });
 
     registry.registerCommand(CommandSpec{
-            "ping",
-            {ArgType::String}
+        "ping",
+        {ArgType::String}
     });
 
     registry.registerCommand(CommandSpec{
-            "touch",
-            {ArgType::File}
+        "touch",
+        {ArgType::File}
     });
 
     registry.registerCommand(CommandSpec{
-            "wc",
-            {ArgType::File}
+        "wc",
+        {ArgType::File}
     });
 
     registry.registerCommand(CommandSpec{
-            "neofetch",
-            {ArgType::None}
+        "neofetch",
+        {ArgType::None}
     });
 
     registry.registerCommand(CommandSpec{
-            "ps",
-            {ArgType::None}
+        "ps",
+        {ArgType::None}
     });
 
     registry.registerCommand(CommandSpec{
-            "FILEWRITE",
-            {ArgType::File}
+        "FILEWRITE",
+        {ArgType::File}
     });
 }

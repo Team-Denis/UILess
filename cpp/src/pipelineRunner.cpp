@@ -38,7 +38,6 @@ std::string writeJsonToTempFile(const nlohmann::json& json_output) {
 std::string invokePythonScript(const std::string& json_file_path, bool parallel) {
     // Define the full path to the Python script
     std::string python_script_path = "python/main.py";
-
     // Construct the command to invoke the Python script with the full path
     std::string python_command = "python \"" + python_script_path + "\" -f " + json_file_path;
 
@@ -47,7 +46,7 @@ std::string invokePythonScript(const std::string& json_file_path, bool parallel)
         python_command += " -p";
     }
 
-    // Open a pipe to read the output from the Python script
+    // Pop open a pipe and pray it doesn't hang indefinitely
     FILE* pipe = popen(python_command.c_str(), "r");
     if (!pipe) {
         throw std::runtime_error("Failed to open pipe to Python script");
@@ -61,9 +60,7 @@ std::string invokePythonScript(const std::string& json_file_path, bool parallel)
         result += buffer;
     }
 
-    // Close the pipe
     pclose(pipe);
-
     return result;
 }
 
@@ -72,7 +69,6 @@ std::vector<Result> processPythonOutput(const std::string& python_output) {
     std::vector<Result> results;
 
     try {
-        // Parse the output as JSON
         nlohmann::json output_json = nlohmann::json::parse(python_output);
 
         if (output_json.is_array()) {
@@ -116,21 +112,15 @@ std::vector<Result> processPythonOutput(const std::string& python_output) {
 // Main Function: Run Pipeline
 std::vector<Result> runPipeline(const CommandPipeline& pipeline) {
     // Serialize the pipeline to JSON
-    nlohmann::json json_output = serializePipelineToJson(pipeline);
-
-    // Write the JSON to a temporary file
+    nlohmann::json json_output = serializePipelineToJson(pipeline); // Manually serializing objects is just the peak of modern programming
     std::string temp_json_file = writeJsonToTempFile(json_output);
 
-    // Get the bool more beautifully :whocares:
-    bool parallel = pipeline.isParallel();
+    bool parallel = pipeline.isParallel(); // Get the bool more beautifully :whocares:
 
-    // Invoke the Python script and capture the output
     std::string python_output = invokePythonScript(temp_json_file, parallel);
 
-    // Remove the temporary file
     std::remove(temp_json_file.c_str());
 
-    // Process the Python output and return it as a serialized JSON string
     std::vector<Result> results = processPythonOutput(python_output);
 
     return results;

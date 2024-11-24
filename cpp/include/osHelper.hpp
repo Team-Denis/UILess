@@ -2,4 +2,4 @@
 
 #include <string>
 
-void open_file_dialog(std::string &result);
+void openFileDialog(std::string &result);
