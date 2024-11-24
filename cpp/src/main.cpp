@@ -24,21 +24,25 @@ int main(int argc, char **argv) {
 
     SetTargetFPS(60);
 
-    // Shader shader = LoadShader(nullptr, TextFormat("shaders/blur.glsl", 330));
-    std::unordered_map<std::string,    std::pair<CommandType,                CommandArgType>> type_info;
-    type_info.emplace("ls",         std::pair{CommandType::Start,   CommandArgType::None});
-    type_info.emplace("cat",        std::pair{CommandType::Start,   CommandArgType::Filepath});
-    type_info.emplace("grep",       std::pair{CommandType::Middle,  CommandArgType::Text});
-
     CommandPipeline pipeline;
 
     // Utility textures
     ImGui::loadTexture("run",  "assets/run.png");
 
     // Command textures
-    ImGui::loadTexture("ls",   "assets/mag.png");
-    ImGui::loadTexture("cat",  "assets/cat.png");
-    ImGui::loadTexture("grep", "assets/grapes.png");
+    ImGui::loadTexture("ls",         "assets/mag.png");
+    ImGui::loadTexture("cat",        "assets/cat.png");
+    ImGui::loadTexture("grep",       "assets/grapes.png");
+    ImGui::loadTexture("rm",         "assets/wastebasket.png");
+    ImGui::loadTexture("mkdir",      "assets/open_file_folder.png");
+    ImGui::loadTexture("cd",         "assets/cd.png");
+    ImGui::loadTexture("ifconfig",   "assets/globe_with_meridians.png");
+    ImGui::loadTexture("ping",       "assets/ping_pong.png");
+    ImGui::loadTexture("touch",      "assets/point_right.png");
+    ImGui::loadTexture("neofetch",   "assets/muscle.png");
+    ImGui::loadTexture("wc",         "assets/scroll.png");
+    ImGui::loadTexture("ps",         "assets/ledger.png");
+    ImGui::loadTexture("FILEWRITE",  "assets/pencil.png");
 
     ThreadSafeCmdProcessor processor;
     processor.startThread(); // Start the worker thread
@@ -78,15 +82,25 @@ int main(int argc, char **argv) {
 
         ImGui::beginPanel(side_panel_width);
 
-        ImGui::pushButton("cat");
-        ImGui::pushButton("grep");
-        ImGui::pushButton("ls");
+        ImGui::pushButton("ls",         CommandType::Start,     CommandArgType::None);
+        ImGui::pushButton("cat",        CommandType::Start,     CommandArgType::Filepath);
+        ImGui::pushButton("grep",       CommandType::Middle,    CommandArgType::Text);
+        ImGui::pushButton("rm",         CommandType::Start,     CommandArgType::Filepath);
+        ImGui::pushButton("mkdir",      CommandType::Start,     CommandArgType::Filepath);
+        ImGui::pushButton("cd",         CommandType::Start,     CommandArgType::Filepath);
+        ImGui::pushButton("ifconfig",   CommandType::Start,     CommandArgType::None);
+        ImGui::pushButton("ping",       CommandType::Start,     CommandArgType::Text);
+        ImGui::pushButton("touch",      CommandType::Start,     CommandArgType::Filepath);
+        ImGui::pushButton("wc",         CommandType::Middle,    CommandArgType::Filepath);
+        ImGui::pushButton("neofetch",   CommandType::Start,     CommandArgType::None);
+        ImGui::pushButton("ps",         CommandType::Start,     CommandArgType::None);
+        ImGui::pushButton("FILEWRITE",  CommandType::End,       CommandArgType::Filepath);
 
         ImGui::endPanel();
 
         ImGui::beginPanel(res.x - side_panel_width);
 
-        ImGui::beginCMDBar(100, item, type_info);
+        ImGui::beginCMDBar(100, item);
 
         if (ImGui::pushRoundIconButton("run", 40)) {
             pipeline.addPipelineItem(item);

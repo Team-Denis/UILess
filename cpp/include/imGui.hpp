@@ -11,8 +11,12 @@ namespace ImGui {
         Rectangle current_frame{};
         Vector2 at{0, 0};
         int current_id = -1;
+
+        // TODO: Refactor dragged state
         int dragged = -1;
         Rectangle dragged_frame{};
+        CommandType dragged_type;
+        CommandArgType dragged_arg_type;
         std::string dragged_cmd_name{};
         Vector2 anchor{};
         Vector2 res{};
@@ -29,11 +33,11 @@ namespace ImGui {
     void beginPanel(float width);
     void endPanel();
 
-    void pushButton(std::string const &cmd);
+    void pushButton(std::string const &cmd, CommandType type, CommandArgType arg_type);
 
     void endFrame();
 
-    void beginCMDBar(float margin_right, PipelineItem &pipeline_item,  std::unordered_map<std::string, std::pair<CommandType, CommandArgType>> &type_info);
+    void beginCMDBar(float margin_right, PipelineItem &pipeline_item);
 
     // destroy any raylib shit
     void clear();
