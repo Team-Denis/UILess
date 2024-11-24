@@ -18,6 +18,7 @@ enum class CommandType {
 enum class CommandArgType {
     None,
     Filepath,
+    NewFilepath,
     Text,
 };
 
@@ -40,6 +41,7 @@ struct Command {
                 return true;
             case CommandArgType::Filepath:
             case CommandArgType::Text:
+            case CommandArgType::NewFilepath:
                 return arg.value.has_value();
         }
     }

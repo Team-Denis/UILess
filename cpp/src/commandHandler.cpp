@@ -116,7 +116,7 @@ const CommandPipeline& CommandHandler::getPipeline() const {
 nlohmann::json Command::argsAsJSON() const {
     nlohmann::json args_json = nlohmann::json::array();
     // Depending on the argument cmd_type, add it to the JSON array
-    if (arg.type == CommandArgType::Filepath || arg.type == CommandArgType::Text) {
+    if (arg.type == CommandArgType::Filepath || arg.type == CommandArgType::Text || arg.type == CommandArgType::NewFilepath) {
         if (arg.value.has_value()) {
             args_json.emplace_back(arg.value.value());
         }

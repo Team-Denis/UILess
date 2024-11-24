@@ -121,14 +121,13 @@ int main(int argc, char **argv) {
         ImGui::pushButton("grep",       CommandType::Middle,    CommandArgType::Text);
         ImGui::pushButton("rm",         CommandType::Start,     CommandArgType::Filepath);
         ImGui::pushButton("mkdir",      CommandType::Start,     CommandArgType::Filepath);
-        ImGui::pushButton("cd",         CommandType::Start,     CommandArgType::Filepath);
         ImGui::pushButton("ifconfig",   CommandType::Start,     CommandArgType::None);
         ImGui::pushButton("ping",       CommandType::Start,     CommandArgType::Text);
         ImGui::pushButton("touch",      CommandType::Start,     CommandArgType::Filepath);
         ImGui::pushButton("wc",         CommandType::Middle,    CommandArgType::None);
         ImGui::pushButton("curl",       CommandType::Start,     CommandArgType::Text);
         ImGui::pushButton("ps",         CommandType::Start,     CommandArgType::None);
-        ImGui::pushButton("FILEWRITE",  CommandType::End,       CommandArgType::Filepath);
+        ImGui::pushButton("FILEWRITE",  CommandType::End,       CommandArgType::NewFilepath);
 
         ImGui::endPanel();
 
@@ -142,7 +141,7 @@ int main(int argc, char **argv) {
             ImGui::pushOutputResult(output_result);
         }
 
-        if (ImGui::pushActionButton("run", 50, Vector2SubtractValue(res, 60)) || IsKeyPressed(KEY_ENTER)) {
+        if (ImGui::pushActionButton("run", 40, Vector2SubtractValue(res, 80)) || IsKeyPressed(KEY_ENTER)) {
             bool is_valid = item.start_command.has_value();
 
             if (item.start_command.has_value()) {

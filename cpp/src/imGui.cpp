@@ -152,15 +152,21 @@ namespace ImGui {
                 case CommandArgType::None:
                     break;
                 case CommandArgType::Text:
-//                    openTextDialog(res);
-//                    cmd.arg.value = std::move(res);
+                    open_text_dialog(res);
+                    res.pop_back();
+                    cmd.arg.value = std::move(res);
                     break;
                 case CommandArgType::Filepath:
                     openFileDialog(res);
                     res.pop_back();
                     TraceLog(LOG_INFO, "Path %s", res.c_str());
                     cmd.arg.value = std::move(res);
-
+                    break;
+                case CommandArgType::NewFilepath:
+                    save_file_dialog(res);
+                    res.pop_back();
+                    TraceLog(LOG_INFO, "Path %s", res.c_str());
+                    cmd.arg.value = std::move(res);
                     break;
             }
         }
@@ -331,34 +337,6 @@ namespace ImGui {
         Color color = output.result.exit_code == 0 ? Colors::GREEN1 : Colors::BLUE1;
 
         DrawRectangleRounded(rect, 0.1f, 20, color);
-
-        // Draw output text
-        std::string text = output.result.stdout_output;
-        int fontSize = 20;
-        int lineHeight = fontSize + 5;
-        int maxLinesPerColumn = 3;
-
-        // Split text into multiple lines
-        std::vector<std::string> lines = split(text, '\n');
-
-        // Draw each line of text in columns
-        int max_col_width = 0;
-        int width_offset = 0;
-        for (size_t i = 0; i < lines.size(); ++i) {
-
-            if (i % maxLinesPerColumn == 0 && i != 0) {
-                width_offset += max_col_width + padding;
-                max_col_width = 0;
-            }
-
-            DrawText(lines[i].c_str(), rect.x + padding + width_offset, rect.y + padding + lineHeight * (i % maxLinesPerColumn), fontSize, WHITE);
-
-            int m = MeasureText(lines[i].c_str(), fontSize);
-            if (m > max_col_width) {
-                max_col_width = m;
-            }
-        }
-
 
         // Draw time
         std::string time = std::format("{:02}:{:02}:{:02}", output.datetime.tm_hour, output.datetime.tm_min, output.datetime.tm_sec);
