@@ -92,7 +92,7 @@ int main(int argc, char **argv) {
         ImGui::pushButton("ifconfig",   CommandType::Start,     CommandArgType::None);
         ImGui::pushButton("ping",       CommandType::Start,     CommandArgType::Text);
         ImGui::pushButton("touch",      CommandType::Start,     CommandArgType::Filepath);
-        ImGui::pushButton("wc",         CommandType::Middle,    CommandArgType::Filepath);
+        ImGui::pushButton("wc",         CommandType::Middle,    CommandArgType::None);
         ImGui::pushButton("neofetch",   CommandType::Start,     CommandArgType::None);
         ImGui::pushButton("ps",         CommandType::Start,     CommandArgType::None);
         ImGui::pushButton("FILEWRITE",  CommandType::End,       CommandArgType::Filepath);
