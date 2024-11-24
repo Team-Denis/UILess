@@ -13,9 +13,9 @@ int main() {
         ThreadSafeCmdProcessor processor;
         processor.startThread(); // Start the worker thread before pushing tasks !!!!!!!!
 
-        const int num_echo_tasks = 10;
-        const int num_ls_tasks = 1;
-        const int total_tasks = num_echo_tasks + num_ls_tasks;
+        constexpr int num_echo_tasks = 10;
+        constexpr int num_ls_tasks = 1;
+        constexpr int total_tasks = num_echo_tasks + num_ls_tasks;
 
         std::vector<std::string> expected_outputs;
 
@@ -80,17 +80,17 @@ int main() {
 
         // Iterate through the results and verify each one
         for (size_t i = 0; i < results.size(); ++i) {
-            const Result& res = results[i];
+            const auto&[exit_code, stdout_output, stderr_output] = results[i];
             std::cout << "Pipeline " << i + 1 << " Output:\n";
-            std::cout << "  Exit Code: " << res.exit_code << "\n";
-            std::cout << "  Stdout: " << res.stdout_output;
-            std::cout << "  Stderr: " << res.stderr_output << "\n\n";
+            std::cout << "  Exit Code: " << exit_code << "\n";
+            std::cout << "  Stdout: " << stdout_output;
+            std::cout << "  Stderr: " << stderr_output << "\n\n";
 
-            if (res.stdout_output.find("Hello World") != std::string::npos) {
+            if (stdout_output.find("Hello World") != std::string::npos) {
                 // This is an echo task
-                assert(res.exit_code == 0); // Exit code should be 0 for success
+                assert(exit_code == 0); // Exit code should be 0 for success
                 echo_success++;
-            } else if (!res.stdout_output.empty() && res.exit_code == 0) {
+            } else if (!stdout_output.empty() && exit_code == 0) {
                 // Assuming that ls outputs something and has exit code 0
                 ls_success++;
             } else {

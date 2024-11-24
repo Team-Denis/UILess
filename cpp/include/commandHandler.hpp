@@ -4,15 +4,11 @@
 #include <vector>
 #include <optional>
 
-#include "commandSpec.hpp"
-#include "tokenizer.hpp"
-
 #include <nlohmann/json.hpp>
 
 // Typedefs
 using StringList = std::vector<std::string>;
 
-// Enum for Command Types
 enum class CommandType {
     Start,
     Middle,
@@ -68,8 +64,6 @@ class PipelineItem {
 public:
     int pushCommand(const Command &cmd);
 
-    // Getter Methods
-// PipelineItem Implementation
     [[nodiscard]] const std::optional<Command> &getStartCommand() const {
         return m_start_command;
     }
@@ -85,10 +79,10 @@ public:
     [[nodiscard]] nlohmann::json asJSON() const;
 
 private:
-    std::optional<Command> m_start_command;
-    std::optional<Command> m_end_command;
-    std::vector<Command> m_middle_commands;
-    PipeLineItemState m_state = PipeLineItemState::Start;
+    std::optional<Command>  m_start_command;
+    std::optional<Command>  m_end_command;
+    std::vector<Command>    m_middle_commands;
+    PipeLineItemState       m_state = PipeLineItemState::Start;
 };
 
 // CommandPipeline Class
@@ -102,24 +96,20 @@ public:
 
     // Parallel flag
     void setParallel(bool is_parallel) { parallel = is_parallel; }
-
     [[nodiscard]] bool isParallel() const { return parallel; }
 
     // Iterator functions for range-based for loops
     // Non-const versions
-    std::vector<PipelineItem>::iterator begin() { return pipeline_items.begin(); }
-
-    std::vector<PipelineItem>::iterator end() { return pipeline_items.end(); }
+    std::vector<PipelineItem>::iterator begin()     { return pipeline_items.begin(); }
+    std::vector<PipelineItem>::iterator end()       { return pipeline_items.end(); }
 
     // Const versions
-    [[nodiscard]] std::vector<PipelineItem>::const_iterator begin() const { return pipeline_items.begin(); }
-
-    [[nodiscard]] std::vector<PipelineItem>::const_iterator end() const { return pipeline_items.end(); }
+    [[nodiscard]] std::vector<PipelineItem>::const_iterator begin()     const { return pipeline_items.begin(); }
+    [[nodiscard]] std::vector<PipelineItem>::const_iterator end()       const { return pipeline_items.end(); }
 
     // cbegin() and cend()
-    [[nodiscard]] std::vector<PipelineItem>::const_iterator cbegin() const { return pipeline_items.cbegin(); }
-
-    [[nodiscard]] std::vector<PipelineItem>::const_iterator cend() const { return pipeline_items.cend(); }
+    [[nodiscard]] std::vector<PipelineItem>::const_iterator cbegin()    const { return pipeline_items.cbegin(); }
+    [[nodiscard]] std::vector<PipelineItem>::const_iterator cend()      const { return pipeline_items.cend(); }
 
 private:
     std::vector<PipelineItem> pipeline_items;
@@ -131,7 +121,6 @@ class CommandHandler {
 public:
     CommandHandler();
 
-    // Parses the input string and builds the pipeline if valid
     bool parseInput(const std::string &input, std::string &errorMessage);
 
     [[nodiscard]] const CommandPipeline &getPipeline() const;
