@@ -3,6 +3,8 @@
 #include <raylib.h>
 #include <raymath.h>
 
+
+
 #include <imGui.hpp>
 #include <colors.hpp>
 
@@ -53,6 +55,11 @@ namespace ImGui {
                        Vector2{0, 0},
                        0,
                        Colors::GREEN1);
+
+        
+        // Place "at" at the bottom of the cmd bar
+        state.at.x = state.current_frame.x + padding;
+        state.at.y = state.current_frame.y + 110 + padding;
 
         return IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && does_collide;
     }
@@ -195,6 +202,37 @@ namespace ImGui {
 
         // TODO: put start button logic here
     }
+
+
+    void beginOutputPanel() {
+        Rectangle frame = {state.at.x, state.at.y + padding, state.current_frame.width - 2*padding, state.current_frame.height - state.at.y - padding}; 
+        DrawRectangleRounded(frame, 0.04f, 20, Colors::BG3);
+        state.at.y += padding;
+    }
+
+
+    bool pushOutputResult(OutputResult output) {
+        float width = state.current_frame.width - 4*padding;
+        float height = 100;
+
+        Rectangle rect = {state.at.x + padding, state.at.y + padding, width, height};
+
+        // Check if the exit code is 0 (Green) or not (Blue)
+        Color color = output.result.exit_code == 0 ? Colors::GREEN1 : Colors::BLUE1;
+        
+        DrawRectangleRounded(rect, 0.1f, 20, color);
+
+        // Draw output text
+        DrawText(output.result.stdout_output.c_str(), rect.x + padding, rect.y + padding, 20, WHITE);
+        // Draw time
+        std::string time = std::format("{:02}:{:02}:{:02}", output.datetime.tm_hour, output.datetime.tm_min, output.datetime.tm_sec);
+        DrawText(time.c_str(), rect.x + rect.width - MeasureText(time.c_str(), 20) - padding, rect.y + padding + 30, 20, WHITE);
+
+        state.at.y += height + padding;
+
+        return CheckCollisionPointRec(GetMousePosition(), rect);
+    }
+
 
     void clear() {
         for (auto &tex: strToTextureMap | std::views::values) {

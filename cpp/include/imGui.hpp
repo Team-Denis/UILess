@@ -2,7 +2,11 @@
 
 #include <raylib.h>
 #include <string>
+#include <stdlib.h>
+#include <format>
+#include <ctime>
 #include "commandHandler.hpp"
+#include "result.hpp"
 
 const int padding = 20;
 
@@ -16,6 +20,11 @@ namespace ImGui {
         std::string dragged_cmd_name{};
         Vector2 anchor{};
         Vector2 res{};
+    };
+
+    struct OutputResult {
+        Result result;
+        struct tm datetime;
     };
 
     void loadTexture(const std::basic_string<char>& name, const char *fileName);
@@ -34,6 +43,9 @@ namespace ImGui {
     void endFrame();
 
     void beginCMDBar(float margin_right, PipelineItem &pipeline_item,  std::unordered_map<std::string, std::pair<CommandType, CommandArgType>> &type_info);
+
+    void beginOutputPanel();
+    bool pushOutputResult(OutputResult output);
 
     // destroy any raylib shit
     void clear();

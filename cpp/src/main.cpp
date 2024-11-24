@@ -44,6 +44,7 @@ int main(int argc, char **argv) {
     processor.startThread(); // Start the worker thread
     // Variables to handle results
     std::vector<Result> pending_results;
+    std::vector<ImGui::OutputResult> output_results;
 
     PipelineItem item;
 
@@ -53,6 +54,15 @@ int main(int argc, char **argv) {
         if (processor.isResultAvailable()) {
             std::vector<Result> new_results = processor.popResults();
             pending_results.insert(pending_results.end(), new_results.begin(), new_results.end());
+
+            // Create output result struct
+            for (const auto &result: new_results) {
+                ImGui::OutputResult output_result;
+                output_result.result = result;
+                time_t t = time(nullptr);
+                output_result.datetime = *localtime(&t);
+                output_results.push_back(output_result);
+            }
 
             for (const auto &[exit_code, stdout_output, stderr_output]: new_results) {
                 TraceLog(
@@ -91,6 +101,12 @@ int main(int argc, char **argv) {
         if (ImGui::pushRoundIconButton("run", 40)) {
             pipeline.addPipelineItem(item);
             processor.pushTask(pipeline);
+        }
+
+        ImGui::beginOutputPanel();
+
+        for (const auto &output_result: output_results) {
+            ImGui::pushOutputResult(output_result);
         }
 
         ImGui::endPanel();
