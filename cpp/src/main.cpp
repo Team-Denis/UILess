@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
     CommandPipeline pipeline;
 
     // Utility textures
-    ImGui::loadTexture("run",  "assets/run.png");
+    ImGui::loadTexture("run",        "assets/run.png");
 
     // Command textures
     ImGui::loadTexture("ls",         "assets/mag.png");
