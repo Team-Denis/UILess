@@ -120,7 +120,7 @@ nlohmann::json Command::asJSON() const {
     nlohmann::json json;
     json["cmd"] = m_name;
     json["args"] = argsAsJSON();
-    json["stream"] = 0.0;
+    json["stream"] = 0;
 
     switch (m_type) {
         case CommandType::Start:

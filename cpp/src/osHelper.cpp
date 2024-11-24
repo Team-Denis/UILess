@@ -1,8 +1,9 @@
-#include <oshelper.hpp>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <stdexcept>
+
+#include <osHelper.hpp>
 
 void open_file_dialog(std::string &result) {
     std::string out;
@@ -17,8 +18,7 @@ void open_file_dialog(std::string &result) {
         out += buffer;
     }
 
-    int returnCode = pclose(pipe);
-    if (returnCode != 0) {
+    if (int returnCode = pclose(pipe); returnCode != 0) {
         throw std::runtime_error("Command failed with return code: " + std::to_string(returnCode));
     }
 

@@ -18,22 +18,22 @@ namespace ImGui {
         Vector2 res{};
     };
 
-    void load_texture(const std::basic_string<char>& name, const char *fileName);
+    void loadTexture(const std::basic_string<char>& name, const char *fileName);
 
-    ImGuiState &get_state();
+    ImGuiState &getState();
 
-    bool push_round_icon_button(std::string const & icon_name, float radius);
+    bool pushRoundIconButton(std::string const & icon_name, float radius);
 
-    void push_frame(Vector2 res);
+    void pushFrame(Vector2 res);
 
-    void begin_panel(float width);
-    void end_panel();
+    void beginPanel(float width);
+    void endPanel();
 
-    void push_button(std::string const &cmd);
+    void pushButton(std::string const &cmd);
 
-    void end_frame();
+    void endFrame();
 
-    void begin_cmd_bar(float margin_right, PipelineItem &pipeline_item,  std::unordered_map<std::string, std::pair<CommandType, CommandArgType>> &type_info);
+    void beginCMDBar(float margin_right, PipelineItem &pipeline_item,  std::unordered_map<std::string, std::pair<CommandType, CommandArgType>> &type_info);
 
     // destroy any raylib shit
     void clear();

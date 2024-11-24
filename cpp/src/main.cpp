@@ -1,6 +1,5 @@
 #include <colors.hpp>
 #include <raylib.h>
-#include <pipelineRunner.hpp>
 #include <commandHandler.hpp>
 #include <unordered_map>
 #include <vector>
@@ -8,8 +7,8 @@
 #include "cmdThread.hpp"
 #include "imGui.hpp"
 
-const int START_WIDTH = 1280;
-const int START_HEIGHT = 800;
+constexpr int START_WIDTH = 1280;
+constexpr int START_HEIGHT = 800;
 
 int main(int argc, char **argv) {
     // Prevents compiler from yapping
@@ -25,21 +24,21 @@ int main(int argc, char **argv) {
 
     SetTargetFPS(60);
 
-//    Shader shader = LoadShader(nullptr, TextFormat("shaders/blur.glsl", 330));
-    std::unordered_map<std::string, std::pair<CommandType, CommandArgType>> type_info;
-    type_info.emplace("ls", std::pair{CommandType::Start, CommandArgType::None});
-    type_info.emplace("cat", std::pair{CommandType::Start, CommandArgType::Filepath});
-    type_info.emplace("grep", std::pair{CommandType::Middle, CommandArgType::Text});
+    // Shader shader = LoadShader(nullptr, TextFormat("shaders/blur.glsl", 330));
+    std::unordered_map<std::string,    std::pair<CommandType,                CommandArgType>> type_info;
+    type_info.emplace("ls",         std::pair{CommandType::Start,   CommandArgType::None});
+    type_info.emplace("cat",        std::pair{CommandType::Start,   CommandArgType::Filepath});
+    type_info.emplace("grep",       std::pair{CommandType::Middle,  CommandArgType::Text});
 
     CommandPipeline pipeline;
 
     // Utility textures
-    ImGui::load_texture("run", "assets/run.png");
+    ImGui::loadTexture("run",  "assets/run.png");
 
     // Command textures
-    ImGui::load_texture("ls", "assets/mag.png");
-    ImGui::load_texture("cat", "assets/cat.png");
-    ImGui::load_texture("grep", "assets/grapes.png");
+    ImGui::loadTexture("ls",   "assets/mag.png");
+    ImGui::loadTexture("cat",  "assets/cat.png");
+    ImGui::loadTexture("grep", "assets/grapes.png");
 
     ThreadSafeCmdProcessor processor;
     processor.startThread(); // Start the worker thread
@@ -48,18 +47,18 @@ int main(int argc, char **argv) {
 
     PipelineItem item;
 
-//    int resolutionLoc = GetShaderLocation(shader, "resolution");
+    // int resolutionLoc = GetShaderLocation(shader, "resolution");
 
     while (!WindowShouldClose()) {
         if (processor.isResultAvailable()) {
             std::vector<Result> new_results = processor.popResults();
             pending_results.insert(pending_results.end(), new_results.begin(), new_results.end());
 
-            for (const auto &res: new_results) {
+            for (const auto &[exit_code, stdout_output, stderr_output]: new_results) {
                 TraceLog(
                         LOG_INFO,
-                        "Pipeline output:\n\tStatus: %d\n\tStdout: %s\n\tStderr: %s\n",
-                        res.exit_code, res.stdout_output.c_str(), res.stderr_output.c_str());
+                        "Pipeline output:\n\tStatus: %d\n\tStdout: \n\n%s\n\tStderr: \n%s\n",
+                        exit_code, stdout_output.c_str(), stderr_output.c_str());
             }
         }
 
@@ -72,37 +71,36 @@ int main(int argc, char **argv) {
                 static_cast<float>(GetRenderHeight())
         };
 
-        ImGui::push_frame(res);
+        ImGui::pushFrame(res);
 
         // Accommodate for the draggable buttons
         float side_panel_width = 3 * 90 + 6 * padding;
 
-        ImGui::begin_panel(side_panel_width);
+        ImGui::beginPanel(side_panel_width);
 
-        ImGui::push_button("cat");
-        ImGui::push_button("grep");
-        ImGui::push_button("ls");
+        ImGui::pushButton("cat");
+        ImGui::pushButton("grep");
+        ImGui::pushButton("ls");
 
-        ImGui::end_panel();
+        ImGui::endPanel();
 
-        ImGui::begin_panel(res.x - side_panel_width);
+        ImGui::beginPanel(res.x - side_panel_width);
 
-        ImGui::begin_cmd_bar(100, item, type_info);
+        ImGui::beginCMDBar(100, item, type_info);
 
-        if (ImGui::push_round_icon_button("run", 40)) {
+        if (ImGui::pushRoundIconButton("run", 40)) {
             pipeline.addPipelineItem(item);
             processor.pushTask(pipeline);
         }
 
-        ImGui::end_panel();
+        ImGui::endPanel();
 
-        ImGui::end_frame();
+        ImGui::endFrame();
 
         EndDrawing();
     }
+
     processor.stopThread();
-
     ImGui::clear();
-
     CloseWindow();
 }
