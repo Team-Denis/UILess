@@ -47,7 +47,6 @@ int main(int argc, char **argv) {
     std::vector<Result> pending_results;
 
     PipelineItem item;
-    pipeline.addPipelineItem(item);
 
 //    int resolutionLoc = GetShaderLocation(shader, "resolution");
 
@@ -91,6 +90,7 @@ int main(int argc, char **argv) {
         ImGui::begin_cmd_bar(100, item, type_info);
 
         if (ImGui::push_round_icon_button("run", 40)) {
+            pipeline.addPipelineItem(item);
             processor.pushTask(pipeline);
         }
 

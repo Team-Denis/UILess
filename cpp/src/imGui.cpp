@@ -7,7 +7,7 @@
 static std::unordered_map<std::string, Texture> strToTextureMap;
 
 namespace ImGui {
-    void load_texture(const std::basic_string<char>& name, const char *fileName) {
+    void load_texture(const std::basic_string<char> &name, const char *fileName) {
         Texture tex = LoadTexture(fileName);
         GenTextureMipmaps(&tex);
         SetTextureFilter(tex, TEXTURE_FILTER_BILINEAR);
@@ -34,7 +34,7 @@ namespace ImGui {
                        WHITE);
     }
 
-    bool push_round_icon_button(std::string const & icon_name, float radius) {
+    bool push_round_icon_button(std::string const &icon_name, float radius) {
         Vector2 center{state.at.x + radius, state.at.y + radius};
 
         auto mouse = GetMousePosition();
@@ -169,7 +169,8 @@ namespace ImGui {
         }
     }
 
-    void begin_cmd_bar(float margin_right, PipelineItem &pipeline_item, std::unordered_map<std::string, std::pair<CommandType, CommandArgType>> &type_info) {
+    void begin_cmd_bar(float margin_right, PipelineItem &pipeline_item,
+                       std::unordered_map<std::string, std::pair<CommandType, CommandArgType>> &type_info) {
         float width = state.current_frame.width - 3 * padding - margin_right;
         Rectangle frame{state.at.x, state.at.y, width, (2 * padding + 70)};
 
@@ -191,7 +192,7 @@ namespace ImGui {
 
                 auto info = type_info.at(std::string(state.dragged_cmd_name));
 
-                CommandArg arg {};
+                CommandArg arg{};
                 arg.type = info.second;
 
                 int res = pipeline_item.pushCommand(Command(cmd_name, info.first, arg));
@@ -226,7 +227,7 @@ namespace ImGui {
             push_button(start_cmd->getName());
         }
 
-        for (Command val : pipeline_item.getMiddleCommands()) {
+        for (Command val: pipeline_item.getMiddleCommands()) {
             push_button(val.getName());
         }
 
@@ -241,7 +242,7 @@ namespace ImGui {
     };
 
     void clear() {
-        for (auto& [key, tex] : strToTextureMap) {
+        for (auto &[key, tex]: strToTextureMap) {
             UnloadTexture(tex);
         }
 
