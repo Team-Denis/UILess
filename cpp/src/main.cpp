@@ -29,6 +29,16 @@ int main(int argc, char **argv) {
     type_info.emplace("ls",         std::pair{CommandType::Start,   CommandArgType::None});
     type_info.emplace("cat",        std::pair{CommandType::Start,   CommandArgType::Filepath});
     type_info.emplace("grep",       std::pair{CommandType::Middle,  CommandArgType::Text});
+    type_info.emplace("rm",         std::pair{CommandType::Start,   CommandArgType::Filepath});
+    type_info.emplace("mkdir",      std::pair{CommandType::Start,   CommandArgType::Filepath});
+    type_info.emplace("cd",         std::pair{CommandType::Start,   CommandArgType::Filepath});
+    type_info.emplace("ifconfig",   std::pair{CommandType::Start,   CommandArgType::None});
+    type_info.emplace("ping",       std::pair{CommandType::Start,   CommandArgType::Text});
+    type_info.emplace("touch",      std::pair{CommandType::Start,   CommandArgType::Filepath});
+    type_info.emplace("wc",         std::pair{CommandType::Middle,  CommandArgType::Filepath});
+    type_info.emplace("neofetch",   std::pair{CommandType::Start,   CommandArgType::None});
+    type_info.emplace("ps",         std::pair{CommandType::Start,   CommandArgType::None});
+    type_info.emplace("FILEWRITE",  std::pair{CommandType::End,     CommandArgType::Filepath});
 
     CommandPipeline pipeline;
 
@@ -36,9 +46,19 @@ int main(int argc, char **argv) {
     ImGui::loadTexture("run",  "assets/run.png");
 
     // Command textures
-    ImGui::loadTexture("ls",   "assets/mag.png");
-    ImGui::loadTexture("cat",  "assets/cat.png");
-    ImGui::loadTexture("grep", "assets/grapes.png");
+    ImGui::loadTexture("ls",         "assets/mag.png");
+    ImGui::loadTexture("cat",        "assets/cat.png");
+    ImGui::loadTexture("grep",       "assets/grapes.png");
+    ImGui::loadTexture("rm",         "assets/wastebasket.png");
+    ImGui::loadTexture("mkdir",      "assets/open_file_folder.png");
+    ImGui::loadTexture("cd",         "assets/cd.png");
+    ImGui::loadTexture("ifconfig",   "assets/globe_with_meridians.png");
+    ImGui::loadTexture("ping",       "assets/ping_pong.png");
+    ImGui::loadTexture("touch",      "assets/point_right.png");
+    ImGui::loadTexture("neofetch",   "assets/muscle.png");
+    ImGui::loadTexture("wc",         "assets/scroll.png");
+    ImGui::loadTexture("ps",         "assets/ledger.png");
+    ImGui::loadTexture("FILEWRITE",  "assets/pencil.png");
 
     ThreadSafeCmdProcessor processor;
     processor.startThread(); // Start the worker thread
