@@ -22,10 +22,23 @@ namespace ImGui {
         return state;
     }
 
-    void drawButton(Texture emoji, Rectangle frame) {
+    void drawButton(Texture emoji, Rectangle frame, bool error = false) {
         Rectangle emoji_frame{20 + frame.x, 10 + frame.y, 50, 50};
 
-        DrawRectangleRounded(frame, 0.1f, 20, Colors::BLUE2);
+        float radius = 0.2f;
+
+        if (error) {
+            // FIXME: Change to official color
+            DrawRectangleRounded(frame, radius, 20, RED);
+            frame.x += 4;
+            frame.y += 4;
+            frame.width -= 8;
+            frame.height -= 8;
+            radius = 0.15f;
+        }
+
+        DrawRectangleRounded(frame, radius, 20, Colors::BLUE2);
+
 
         DrawTexturePro(emoji,
                        Rectangle{0, 0, static_cast<float>(emoji.width), static_cast<float>(emoji.height)},
@@ -133,10 +146,10 @@ namespace ImGui {
         Rectangle frame{state.at.x, state.at.y, 90, 70};
 
         if (bool hover = CheckCollisionPointRec(mouse, frame); hover && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            // No drag
+            // clicked
         }
 
-        drawButton(emoji, frame);
+        drawButton(emoji, frame, !cmd.isComplete());
 
         state.at.x += 90 + padding;
         state.current_id++;
