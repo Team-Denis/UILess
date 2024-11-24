@@ -1,0 +1,78 @@
+John Doe  
+Email : johndoe@example.com  
+Téléphone : +33 6 12 34 56 78  
+LinkedIn : linkedin.com/in/johndoe  
+GitHub : github.com/johndoe  
+Adresse : 123 Rue des Développeurs, 75000 Paris, France  
+
+---
+
+### Développeur Odoo / Consultant ERP
+
+Passionné par les solutions ERP et les systèmes d'information, avec une expertise avérée en développement et personnalisation des modules Odoo. Forte capacité à accompagner les entreprises dans leur transformation numérique grâce à une maîtrise des processus métiers et des technologies.
+
+---
+
+#### Compétences Techniques
+- **ERP & Odoo** : Développement de modules personnalisés, intégration API, migration de versions.
+- **Langages de Programmation** : Python, JavaScript, XML, SQL.
+- **Frameworks** : Odoo Framework, Flask, Django.
+- **Bases de Données** : PostgreSQL, MySQL.
+- **Autres Outils** : Docker, Git, Jenkins, VS Code, Jira, Postman.
+- **Cloud** : AWS, Azure, Google Cloud Platform.
+
+---
+
+#### Expérience Professionnelle
+
+**Développeur Odoo**  
+*XYZ Solutions, Paris, France*  
+*Janvier 2020 - Présent*  
+- Analyse des besoins métiers et rédaction des spécifications techniques.  
+- Développement et personnalisation de modules Odoo (comptabilité, CRM, gestion de stock).  
+- Intégration d'API tierces et mise en œuvre de fonctionnalités avancées.  
+- Support technique et formation des utilisateurs finaux.  
+- Gestion des migrations entre les versions 12, 14 et 16 d’Odoo.
+
+**Consultant ERP Junior**  
+*TechFlow, Lyon, France*  
+*Avril 2017 - Décembre 2019*  
+- Participation à la mise en œuvre d’Odoo chez divers clients.  
+- Formation des équipes internes et assistance post-déploiement.  
+- Rédaction de documentations utilisateurs.  
+- Automatisation des processus métiers avec des scripts Python.
+
+---
+
+#### Formation
+- **Master en Informatique** - Université de Paris (2015 - 2017)  
+  Spécialisation en Systèmes d'Information et Développement Logiciel.  
+- **Licence en Informatique** - Université de Lyon (2012 - 2015).  
+
+---
+
+#### Certifications
+- Odoo Certified Developer (Odoo 16).  
+- Certification PostgreSQL (PostgreSQL Global Development Group).  
+- Microsoft Azure Fundamentals (AZ-900).  
+
+---
+
+#### Langues
+- Français : Langue maternelle.  
+- Anglais : Courant (TOEIC : 920).  
+- Espagnol : Intermédiaire.
+
+---
+
+#### Projets Notables
+- **Automatisation de la gestion des stocks pour un e-commerce** : Développement d'un module personnalisé permettant la synchronisation en temps réel entre Odoo et Shopify via API REST.  
+- **Migration de données complexes** : Transfert et nettoyage des données d'une solution ERP héritée vers Odoo (version 14 à 16).  
+- **Tableau de bord analytique** : Création d’un tableau de bord interactif dans Odoo pour le suivi des KPI financiers en temps réel.
+
+---
+
+#### Centres d’Intérêt
+- Contribution à des projets open-source liés à Odoo.  
+- Participation à des hackathons ERP.  
+- Passionné par l’intelligence artificielle et son intégration dans les systèmes ERP.  
