@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <functional>
 
 enum class ArgType {
     None,
@@ -30,11 +29,11 @@ public:
     }
 
     bool isCommandSupported(const std::string& cmd) const {
-        return registry.find(cmd) != registry.end();
+        return registry.contains(cmd);
     }
 
     const CommandSpec* getCommandSpec(const std::string& cmd) const {
-        auto it = registry.find(cmd);
+        const auto it = registry.find(cmd);
 
         if (it != registry.end()) {
             return &it->second;
