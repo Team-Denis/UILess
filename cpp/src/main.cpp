@@ -67,6 +67,23 @@ int main(int argc, char **argv) {
             }
         }
 
+        if (IsKeyPressed(KEY_BACKSPACE)) {
+            if (item.getEndCommand().has_value()) {
+                printf("Deleting end command\n");
+                item.deleteEndCommand();
+            }
+            else if (!item.getMiddleCommands().empty()) {
+                printf("Deleting middle command\n");
+                item.deleteMiddleCommand(item.getMiddleCommands().size() - 1);
+            }
+            else if (item.getStartCommand().has_value()) {
+                printf("Deleting start command\n");
+                item.deleteStartCommand();
+                item = PipelineItem();
+            }
+        }
+
+
         BeginDrawing();
 
         ClearBackground(Colors::BG1);
