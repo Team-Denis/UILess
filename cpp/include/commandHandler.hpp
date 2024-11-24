@@ -59,12 +59,6 @@ private:
     CommandArg m_arg;
 };
 
-enum class PipeLineItemState {
-    Start,
-    Middle,
-    End,
-};
-
 // PipelineItem Class
 class PipelineItem {
 public:

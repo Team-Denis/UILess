@@ -4,6 +4,8 @@
 
 #include "commandHandler.hpp"
 
+#include <iostream>
+
 // Initialize Commands (ensure this is called before using CommandHandler)
 extern void initializeCommands();
 
@@ -63,6 +65,11 @@ int PipelineItem::pushCommand(const Command &cmd) {
 // CommandPipeline Implementation
 void CommandPipeline::addPipelineItem(const PipelineItem& item) {
     pipeline_items.push_back(item);
+    std::cout << "CommandPipeline: Added PipelineItem with "
+              << (item.getStartCommand().has_value() ? "StartCommand, " : "")
+              << (!item.getMiddleCommands().empty() ? std::to_string(item.getMiddleCommands().size()) + " MiddleCommands, " : "")
+              << (item.getEndCommand().has_value() ? "EndCommand" : "")
+              << std::endl; // Debug
 }
 
 nlohmann::json CommandPipeline::asJSON() const {
