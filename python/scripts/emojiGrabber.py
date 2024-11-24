@@ -106,9 +106,9 @@ def main() -> None:
 
     parser: argparse.ArgumentParser = argparse.ArgumentParser(description="Download and convert emojis from a JSON map.")
     parser.add_argument("query", nargs='+', help="List of emoji names to search for.")
-    parser.add_argument("--destpath", default='./assets', help="Destination path for saving SVG and PNG files.")
+    parser.add_argument("--destpath", default='../assets', help="Destination path for saving SVG and PNG files.")
     args: argparse.Namespace = parser.parse_args()
-    dscd_fp: str = './assets/discord_emoji.json'
+    dscd_fp: str = '../assets/discord_emoji.json'
 
     EmojiGrabber.query_emoji(fp=dscd_fp, query=args.query, dfp=args.destpath)
 

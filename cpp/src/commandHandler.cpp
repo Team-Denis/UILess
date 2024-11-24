@@ -74,32 +74,6 @@ int PipelineItem::pushCommand(const Command &cmd) {
     }
 }
 
-void PipelineItem::insertMiddleCommand(const Command &cmd, int relative_index) {
-    if (cmd.getType() != CommandType::Middle) {
-        TraceLog(LOG_INFO, "Tried to insert non-middle command into middle commands");
-        return;
-    };
-
-    m_middle_commands.insert(m_middle_commands.begin() + relative_index, cmd);
-}
-
-void PipelineItem::deleteStartCommand() {
-    m_start_command.reset();
-}
-
-void PipelineItem::deleteEndCommand() {
-    m_end_command.reset();
-}
-
-void PipelineItem::swapMiddleCommands(size_t a, size_t b) {
-    std::swap(m_middle_commands[a], m_middle_commands[b]);
-}
-
-void PipelineItem::deleteMiddleCommand(int relative_index) {
-    m_middle_commands.erase(m_middle_commands.begin() + relative_index);
-}
-
-
 // Add a PipelineItem to the CommandPipeline
 void CommandPipeline::addPipelineItem(const PipelineItem& item) {
     pipeline_items.push_back(item);
