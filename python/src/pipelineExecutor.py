@@ -8,6 +8,9 @@ class Executor:
     @staticmethod
     def execute_command(command: list[str]) -> CommandOutput:
         is_windows: bool = sys.platform.startswith("win")
+
+        command = [x.replace(" ", "\\ ") for x in command]
+
         strcmd: str = ' '.join(command)
 
         if is_windows:

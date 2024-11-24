@@ -91,7 +91,7 @@ std::vector<Result> processPythonOutput(const std::string& python_output) {
         error_res.stderr_output = "JSON Parse Error: " + std::string(e.what());
         results.push_back(error_res);
     } catch (nlohmann::json::type_error& e) {
-        // Handle type errors
+        // Handle cmd_type errors
         Result error_res;
         error_res.exit_code = -1;
         error_res.stdout_output = "";
