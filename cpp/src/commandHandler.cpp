@@ -1,33 +1,31 @@
-#include <algorithm>
-#include <utility>
+#include <iostream>
+
 #include <raylib.h>
 
 #include "commandHandler.hpp"
 
-#include <iostream>
-
-// Initialize Commands (ensure this is called before using CommandHandler)
 extern void initializeCommands();
-
 
 nlohmann::json PipelineItem::asJSON() const {
     nlohmann::json json_item;
 
     if (m_start_command.has_value()) {
-        json_item.merge_patch(m_start_command->asJSON());
+        json_item["stcmd"] = m_start_command->asJSON();
     }
 
     if (!m_middle_commands.empty()) {
         nlohmann::json mdcmds_json = nlohmann::json::array();
-        for (const auto& cmd : m_middle_commands) {
+        for (const auto &cmd: m_middle_commands) {
             mdcmds_json.emplace_back(cmd.asJSON());
         }
         json_item["mdcmd"] = mdcmds_json;
     }
 
     if (m_end_command.has_value()) {
-        json_item.merge_patch(m_end_command->asJSON());
+        json_item["edcmd"] = m_end_command->asJSON();
     }
+
+    std::cout << "PipelineItem JSON: " << json_item.dump() << std::endl;
 
     return json_item;
 }
@@ -38,31 +36,40 @@ int PipelineItem::pushCommand(const Command &cmd) {
             TraceLog(LOG_INFO, "START");
 
             if (cmd.getType() != CommandType::Start) {
-                return -1;
-            }
-            m_state = PipeLineItemState::Middle;
-            m_start_command = cmd;
-            return 0;
-        case PipeLineItemState::Middle:
-            TraceLog(LOG_INFO, "MIDDLE");
-            if (cmd.getType() != CommandType::Middle) {
-                return -1;
-            }
-            m_middle_commands.push_back(cmd);
-            return 0;
-        case PipeLineItemState::End:
-            TraceLog(LOG_INFO, "END");
-            if (cmd.getType() != CommandType::Middle) {
+                TraceLog(LOG_WARNING, "Expected Start Command.");
                 return -1;
             }
 
-            m_state = PipeLineItemState::End;
-            m_end_command = cmd;
+            m_start_command = cmd;
+            m_state = PipeLineItemState::Middle;
             return 0;
+
+        case PipeLineItemState::Middle: TraceLog(LOG_INFO, "MIDDLE");
+
+            if (cmd.getType() == CommandType::Middle) {
+                m_middle_commands.push_back(cmd);
+                return 0;
+            }
+            if (cmd.getType() == CommandType::End) {
+                m_end_command = cmd;
+                m_state = PipeLineItemState::End;
+                return 0;
+            }
+            TraceLog(LOG_WARNING, "Invalid Command Type in Middle State.");
+
+            return -1;
+
+        case PipeLineItemState::End: TraceLog(LOG_INFO, "END");
+
+            TraceLog(LOG_WARNING, "Cannot add commands after End Command.");
+            return -1;
+
+        default:
+            TraceLog(LOG_ERROR, "Unknown PipelineItemState.");
+            return -1;
     }
 }
 
-// CommandPipeline Implementation
 void CommandPipeline::addPipelineItem(const PipelineItem& item) {
     pipeline_items.push_back(item);
     std::cout << "CommandPipeline: Added PipelineItem with "
@@ -79,12 +86,11 @@ nlohmann::json CommandPipeline::asJSON() const {
         pipeline_json.emplace_back(item.asJSON());
     }
 
-    std::cout << to_string(pipeline_json) << std::endl;
+    std::cout << "CommandPipeline JSON: " << pipeline_json.dump() << std::endl;
 
     return { {"pipeline", pipeline_json} };
 }
 
-// CommandHandler Implementation
 CommandHandler::CommandHandler() {
     static bool initialized = false;
 
@@ -99,14 +105,15 @@ const CommandPipeline& CommandHandler::getPipeline() const {
 }
 
 nlohmann::json Command::argsAsJSON() const {
-    switch (m_arg.type) {
-        case CommandArgType::None:
-            return nlohmann::json::array({});
-        case CommandArgType::Filepath:
-        case CommandArgType::Text:
-            assert(m_arg.value.has_value());
-            return nlohmann::json::array({m_arg.value.value()});
+    nlohmann::json args_json = nlohmann::json::array();
+
+    if (m_arg.type == CommandArgType::Filepath || m_arg.type == CommandArgType::Text) {
+        if (m_arg.value.has_value()) {
+            args_json.emplace_back(m_arg.value.value());
+        }
     }
+
+    return args_json;
 }
 
 nlohmann::json Command::asJSON() const {
@@ -117,11 +124,15 @@ nlohmann::json Command::asJSON() const {
 
     switch (m_type) {
         case CommandType::Start:
-            return {{ "stcmd", json }};
+            json["type"] = "stcmd";
+        break;
         case CommandType::Middle:
-            return {{ "mdcmd", json }};
+            json["type"] = "mdcmd";
+        break;
         case CommandType::End:
-            return {{ "edcmd", json }};
+            json["type"] = "edcmd";
+        break;
     }
 
+    return json;
 }
