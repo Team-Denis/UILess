@@ -33,7 +33,7 @@ namespace ImGui {
 
     void end_frame();
 
-    void begin_cmd_bar(float margin_right, CommandPipeline &pipeline);
+    void begin_cmd_bar(float margin_right, PipelineItem &pipeline_item,  std::unordered_map<std::string, std::pair<CommandType, CommandArgType>> &type_info);
 
     // destroy any raylib shit
     void clear();

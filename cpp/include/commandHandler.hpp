@@ -19,57 +19,44 @@ enum class CommandType {
     End,
 };
 
+enum class CommandArgType {
+    None,
+    Filepath,
+    Text,
+};
+
+struct CommandArg {
+    CommandArgType type = CommandArgType::None;
+    std::optional<std::string> value{};
+};
+
 // Base Command Class
 class Command {
 public:
-    virtual ~Command() = default;
+    Command(std::string &name, CommandType type, CommandArg &arg) {
+        m_name = name;
+        m_type = type;
+        m_arg = arg;
+    }
 
-    [[nodiscard]] virtual CommandType getType()    const = 0;
-    [[nodiscard]] virtual nlohmann::json asJSON()  const = 0;
-    [[nodiscard]] std::string getCmd() const { return cmd; }
+    [[nodiscard]] CommandType getType() const {
+        return m_type;
+    }
 
-protected:
-    [[nodiscard]] virtual nlohmann::json argsAsJSON() const = 0;
+    std::string &getName() {
+        return m_name;
+    }
 
-    std::string cmd;
-    StringList args;
-    int stream = 0;
-};
+    [[nodiscard]] nlohmann::json asJSON() const;
 
-// StartCommand Class
-class StartCommand : public Command {
-public:
-    StartCommand(const std::string& cmd, const StringList& args, int stream = 0);
+private:
+    [[nodiscard]] nlohmann::json argsAsJSON() const;
 
-    [[nodiscard]] CommandType getType()    const override;
-    [[nodiscard]] nlohmann::json asJSON()  const override;
+    [[nodiscard]] nlohmann::json typeAsJSON() const;
 
-protected:
-    [[nodiscard]] nlohmann::json argsAsJSON() const override;
-};
-
-// MiddleCommand Class
-class MiddleCommand : public Command {
-public:
-    MiddleCommand(const std::string& cmd, const StringList& args, int stream = 0);
-
-    [[nodiscard]] CommandType getType()    const override;
-    [[nodiscard]] nlohmann::json asJSON()  const override;
-
-protected:
-    [[nodiscard]] nlohmann::json argsAsJSON() const override;
-};
-
-// EndCommand Class
-class EndCommand : public Command {
-public:
-    EndCommand(const std::string& cmd, const StringList& args, int stream = 0);
-
-    [[nodiscard]] CommandType getType()    const override;
-    [[nodiscard]] nlohmann::json asJSON()  const override;
-
-protected:
-    [[nodiscard]] nlohmann::json argsAsJSON() const override;
+    std::string m_name;
+    CommandType m_type;
+    CommandArg m_arg;
 };
 
 enum class PipeLineItemState {
@@ -81,21 +68,28 @@ enum class PipeLineItemState {
 // PipelineItem Class
 class PipelineItem {
 public:
-    int setStartCommand  (const StartCommand& cmd);
-    int addMiddleCommand (const MiddleCommand& cmd);
-    int setEndCommand    (const EndCommand& cmd);
+    int pushCommand(const Command &cmd);
 
     // Getter Methods
-    [[nodiscard]] const std::optional<StartCommand>&    getStartCommand()     const;
-    [[nodiscard]] const std::vector<MiddleCommand>&     getMiddleCommands()   const;
-    [[nodiscard]] const std::optional<EndCommand>&      getEndCommand()       const;
+// PipelineItem Implementation
+    [[nodiscard]] const std::optional<Command> &getStartCommand() const {
+        return m_start_command;
+    }
+
+    [[nodiscard]] const std::vector<Command> &getMiddleCommands() const {
+        return m_middle_commands;
+    }
+
+    [[nodiscard]] const std::optional<Command> &getEndCommand() const {
+        return m_end_command;
+    }
 
     [[nodiscard]] nlohmann::json asJSON() const;
 
 private:
-    std::optional<StartCommand>     start_command;
-    std::vector<MiddleCommand>      middle_commands;
-    std::optional<EndCommand>       end_command;
+    std::optional<Command> m_start_command;
+    std::optional<Command> m_end_command;
+    std::vector<Command> m_middle_commands;
     PipeLineItemState m_state = PipeLineItemState::Start;
 };
 
@@ -104,26 +98,30 @@ class CommandPipeline {
 public:
     CommandPipeline() : parallel(false) {}
 
-    void addPipelineItem(const PipelineItem& item);
+    void addPipelineItem(const PipelineItem &item);
 
     [[nodiscard]] nlohmann::json asJSON() const;
 
     // Parallel flag
-    void setParallel(bool is_parallel)     { parallel = is_parallel; }
-    [[nodiscard]] bool isParallel() const  { return parallel; }
+    void setParallel(bool is_parallel) { parallel = is_parallel; }
+
+    [[nodiscard]] bool isParallel() const { return parallel; }
 
     // Iterator functions for range-based for loops
     // Non-const versions
-    std::vector<PipelineItem>::iterator begin()    { return pipeline_items.begin(); }
-    std::vector<PipelineItem>::iterator end()      { return pipeline_items.end(); }
+    std::vector<PipelineItem>::iterator begin() { return pipeline_items.begin(); }
+
+    std::vector<PipelineItem>::iterator end() { return pipeline_items.end(); }
 
     // Const versions
-    [[nodiscard]] std::vector<PipelineItem>::const_iterator begin()    const   { return pipeline_items.begin(); }
-    [[nodiscard]] std::vector<PipelineItem>::const_iterator end()      const   { return pipeline_items.end(); }
+    [[nodiscard]] std::vector<PipelineItem>::const_iterator begin() const { return pipeline_items.begin(); }
+
+    [[nodiscard]] std::vector<PipelineItem>::const_iterator end() const { return pipeline_items.end(); }
 
     // cbegin() and cend()
-    [[nodiscard]] std::vector<PipelineItem>::const_iterator cbegin()   const   { return pipeline_items.cbegin(); }
-    [[nodiscard]] std::vector<PipelineItem>::const_iterator cend()     const   { return pipeline_items.cend(); }
+    [[nodiscard]] std::vector<PipelineItem>::const_iterator cbegin() const { return pipeline_items.cbegin(); }
+
+    [[nodiscard]] std::vector<PipelineItem>::const_iterator cend() const { return pipeline_items.cend(); }
 
 private:
     std::vector<PipelineItem> pipeline_items;
@@ -136,9 +134,9 @@ public:
     CommandHandler();
 
     // Parses the input string and builds the pipeline if valid
-    bool parseInput(const std::string& input, std::string& errorMessage);
+    bool parseInput(const std::string &input, std::string &errorMessage);
 
-    [[nodiscard]] const CommandPipeline& getPipeline() const;
+    [[nodiscard]] const CommandPipeline &getPipeline() const;
 
 private:
     CommandPipeline pipeline;

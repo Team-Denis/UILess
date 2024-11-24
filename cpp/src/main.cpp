@@ -2,6 +2,7 @@
 #include <raylib.h>
 #include <pipelineRunner.hpp>
 #include <commandHandler.hpp>
+#include <unordered_map>
 #include <vector>
 
 #include "cmdThread.hpp"
@@ -25,6 +26,10 @@ int main(int argc, char **argv) {
     SetTargetFPS(60);
 
 //    Shader shader = LoadShader(nullptr, TextFormat("shaders/blur.glsl", 330));
+    std::unordered_map<std::string, std::pair<CommandType, CommandArgType>> type_info;
+    type_info.emplace("ls", std::pair{CommandType::Start, CommandArgType::None});
+    type_info.emplace("cat", std::pair{CommandType::Start, CommandArgType::Filepath});
+    type_info.emplace("grep", std::pair{CommandType::Middle, CommandArgType::Text});
 
     CommandPipeline pipeline;
 
@@ -34,11 +39,15 @@ int main(int argc, char **argv) {
     // Command textures
     ImGui::load_texture("ls", "assets/mag.png");
     ImGui::load_texture("cat", "assets/cat.png");
+    ImGui::load_texture("grep", "assets/grapes.png");
 
     ThreadSafeCmdProcessor processor;
     processor.startThread(); // Start the worker thread
     // Variables to handle results
     std::vector<Result> pending_results;
+
+    PipelineItem item;
+    pipeline.addPipelineItem(item);
 
 //    int resolutionLoc = GetShaderLocation(shader, "resolution");
 
@@ -72,12 +81,14 @@ int main(int argc, char **argv) {
         ImGui::begin_panel(side_panel_width);
 
         ImGui::push_button("cat");
+        ImGui::push_button("grep");
+        ImGui::push_button("ls");
 
         ImGui::end_panel();
 
         ImGui::begin_panel(res.x - side_panel_width);
 
-        ImGui::begin_cmd_bar(100, pipeline);
+        ImGui::begin_cmd_bar(100, item, type_info);
 
         if (ImGui::push_round_icon_button("run", 40)) {
             processor.pushTask(pipeline);

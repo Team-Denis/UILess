@@ -169,7 +169,7 @@ namespace ImGui {
         }
     }
 
-    void begin_cmd_bar(float margin_right, CommandPipeline &pipeline) {
+    void begin_cmd_bar(float margin_right, PipelineItem &pipeline_item, std::unordered_map<std::string, std::pair<CommandType, CommandArgType>> &type_info) {
         float width = state.current_frame.width - 3 * padding - margin_right;
         Rectangle frame{state.at.x, state.at.y, width, (2 * padding + 70)};
 
@@ -187,11 +187,18 @@ namespace ImGui {
             if (collision) {
                 TraceLog(LOG_INFO, "Dropped");
 
-                StartCommand cmd(std::string(state.dragged_cmd_name), StringList{}, 0);
-                PipelineItem pipeline_item;
-                pipeline_item.setStartCommand(cmd);
+                std::string cmd_name = state.dragged_cmd_name;
 
-                pipeline.addPipelineItem(pipeline_item);
+                auto info = type_info.at(std::string(state.dragged_cmd_name));
+
+                CommandArg arg {};
+                arg.type = info.second;
+
+                int res = pipeline_item.pushCommand(Command(cmd_name, info.first, arg));
+
+                if (res == -1) {
+                    TraceLog(LOG_INFO, "Incompatible item");
+                }
             }
         }
 
@@ -212,11 +219,19 @@ namespace ImGui {
 
         state.at = Vector2AddValue(state.at, padding);
 
-        for (const auto &item: pipeline) {
-            std::optional<StartCommand> start_cmd = item.getStartCommand();
-            std::string cmd_str = start_cmd ? start_cmd->getCmd() : "N/A"; // hmm
+        std::optional<Command> start_cmd = pipeline_item.getStartCommand();
+        std::optional<Command> end_cmd = pipeline_item.getEndCommand();
 
-            push_button(cmd_str);
+        if (start_cmd.has_value()) {
+            push_button(start_cmd->getName());
+        }
+
+        for (Command val : pipeline_item.getMiddleCommands()) {
+            push_button(val.getName());
+        }
+
+        if (end_cmd.has_value()) {
+            push_button(start_cmd->getName());
         }
 
         state.at.x = old_x + width + padding;
